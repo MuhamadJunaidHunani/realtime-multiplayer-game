@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 
-const socket = io('https://arena-play-backend.vercel.app/');
+const socket = io('https://arena-play-backend.vercel.app/',{
+  transports: ["websocket"], 
+});
 
 
 function Test() {
