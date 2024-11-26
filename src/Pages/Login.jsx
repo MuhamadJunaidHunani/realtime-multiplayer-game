@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {Link } from 'react-router-dom';
 import { auth } from '../Firebase/Firebase';
+import { toast } from 'react-toastify';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +13,7 @@ function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);;
     } catch (error) {
+      toast.error(error.message)
       console.error("Failed to login:", error.message);
     }
   };

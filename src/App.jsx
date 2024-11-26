@@ -3,8 +3,6 @@ import './App.css';
 import Controls from "./Components/Controls";
 import GameArea from "./Components/GameArea";
 import Test from "./Components/Test";
-import { Provider } from "react-redux";
-import { store } from "./Redux/store";
 import PublicRoutes from "./AuthRouting/PublicRoutes";
 import PrivateRoutes from "./AuthRouting/PrivateRoutes";
 import Signup from "./Pages/Signup";
@@ -15,21 +13,28 @@ import { createBrowserRouter, RouterProvider, useNavigate } from "react-router-d
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./Firebase/Firebase";
 import { setcurrentUser, setcurrentUserLoading } from "./Redux/Slices/CurrentUser.slice";
-
+import { useDispatch } from "react-redux";
 
 const App = () => {
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    setcurrentUserLoading(true);
+    dispatch(setcurrentUserLoading(true));
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setcurrentUser(user);
+        const  {
+          uid,
+          email,
+          displayName,
+          photoURL,
+        } = user;
+        dispatch(setcurrentUser({uid , email , displayName , photoURL}));
+        dispatch(setcurrentUserLoading(false));
       } else {
-        setcurrentUser(null);
+        dispatch(setcurrentUser(null));
+        dispatch(setcurrentUserLoading(false));
       }
-      setcurrentUserLoading(false);
     });
-    
     return unsubscribe;
   }, []);
 
@@ -37,7 +42,7 @@ const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-      navigate('/messages/1');
+      navigate('/test');
     }, [navigate]);
 
     return null;
@@ -59,7 +64,6 @@ const App = () => {
     <>
         <RouterProvider router={router} />
         <ToastContainer />
-        <h1 className="text-red-50 text-[40px]">hello</h1>
     </>
 
   );

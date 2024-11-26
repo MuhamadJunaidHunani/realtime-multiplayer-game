@@ -13,7 +13,8 @@ export const currentUserSlice = createSlice({
       state.currentUser = action.payload;
     },
     setcurrentUserLoading: (state , action) => {
-      state.currentUserLoading = action.payload
+        console.log(action.payload , 'okkkk');
+      state.currentUserLoading = action.payload;
     }
   },
 })
