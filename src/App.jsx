@@ -14,6 +14,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./Firebase/Firebase";
 import { setcurrentUser, setcurrentUserLoading } from "./Redux/Slices/CurrentUser.slice";
 import { useDispatch } from "react-redux";
+import { FetchUsers } from "./Firebase/FetchUsers";
+import { setUser, setUserLoading } from "./Redux/Slices/Users.slice";
+import Leaderboard from "./Pages/LeaderBoard";
+import Hearder from "./Components/Hearder";
 
 const App = () => {
   const dispatch = useDispatch()
@@ -38,6 +42,15 @@ const App = () => {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = FetchUsers((data) => {
+      dispatch(setUser(data));
+      dispatch(setUserLoading(false));
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   function HomeRedirect() {
     const navigate = useNavigate();
 
@@ -53,6 +66,7 @@ const App = () => {
     { path: '/messages/:id', element: <PrivateRoutes element={<GameArea />} /> },
     { path: '/', element: <PrivateRoutes element={<HomeRedirect />} /> },
     { path: '/test', element: <PrivateRoutes element={<Test />} /> },
+    { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
   ]);
 
 
@@ -62,6 +76,7 @@ const App = () => {
 </div> */}
   return (
     <>
+    <Hearder/>
         <RouterProvider router={router} />
         <ToastContainer />
     </>

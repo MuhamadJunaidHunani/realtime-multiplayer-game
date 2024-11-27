@@ -8,6 +8,7 @@ import { IoMdEye } from 'react-icons/io';
 import { RiEyeCloseFill } from 'react-icons/ri';
 import { useDispatch } from 'react-redux';
 import { setcurrentUserLoading } from '../Redux/Slices/CurrentUser.slice';
+import { addUserToFirestore } from '../Firebase/AddUserToFirestore';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -17,9 +18,16 @@ function Login() {
 
   const SigninWithGoogle = async () => {
     try {
-      const { user } = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const { user } = result;
+      const profile = 'https://res.cloudinary.com/duaxitxph/image/upload/v1732693101/chdzzmkdoudncvaontbh.png';
       await updateProfile(user, {
-       photoURL: 'https://res.cloudinary.com/duaxitxph/image/upload/v1732693101/chdzzmkdoudncvaontbh.png' });
+       photoURL: profile });
+       const additionalInfo = result._tokenResponse?.isNewUser; 
+       if (additionalInfo) {
+         const {displayName , email } = user
+         await addUserToFirestore(user.uid, { email, name:displayName, profileImage:profile , win:0 , lose:0  });
+     }
     } catch (error) {
       console.error("Error during sign-in:", error);
       toast.error("Error during sign-in:", error)

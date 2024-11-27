@@ -29,8 +29,14 @@ function Signup() {
   ];
   const SigninWithGoogle = async () => {
     try {
-      const { user } = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const { user } = result
       await updateProfile(user, { photoURL: avatars[4] });
+      const additionalInfo = result._tokenResponse?.isNewUser; 
+      if (additionalInfo) {
+        const {displayName , email } = user
+        await addUserToFirestore(user.uid, { email, name:displayName, profileImage:avatars[4] , win:0 , lose:0  });
+    }
     } catch (error) {
       console.error("Error during sign-in:", error);
       toast.error("Error during sign-in:", error)
@@ -47,7 +53,7 @@ function Signup() {
       const profileImage = avatars[profileIndex];
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(user, { displayName: name, photoURL: profileImage });
-      await addUserToFirestore(user.uid, { email, password, name, profileImage });
+      await addUserToFirestore(user.uid, { email, name, profileImage , win:0 , lose:0  });
     } catch (error) {
       return toast.error("Failed to sign up", error);
       dispatch(setcurrentUserLoading(false))
