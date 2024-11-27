@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CiCamera } from "react-icons/ci";
 import { toast } from 'react-toastify';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '../Firebase/Firebase';
+import { createUserWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
+import { auth, provider } from '../Firebase/Firebase';
 import { addUserToFirestore } from '../Firebase/AddUserToFirestore';
-import titleCar from '../assets/images/titleCar.png';
-import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
+import { IoMdEye } from 'react-icons/io';
 import { RiEyeCloseFill } from 'react-icons/ri';
+import BgDesing from '../Components/BgDesing';
+import { useDispatch } from 'react-redux';
+import { setcurrentUserLoading } from '../Redux/Slices/CurrentUser.slice';
 
 
 function Signup() {
@@ -15,12 +17,24 @@ function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [selectedImage, setSelectedImage] = useState(null);
-  const defaultProfilePic = 'https://res.cloudinary.com/duaxitxph/image/upload/v1730489678/fvnlm4dqusnv4il9ee00.webp';
+  const [profileIndex, setProfileIndex] = useState(0);
+  const dispatch = useDispatch()
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedImage(file);
+  const avatars = [
+    'https://res.cloudinary.com/duaxitxph/image/upload/v1732693117/tat2otrx0ae26zjyvb33.png',
+    'https://res.cloudinary.com/duaxitxph/image/upload/v1732693113/bypxtqiae3dmiejj3dtu.png',
+    'https://res.cloudinary.com/duaxitxph/image/upload/v1732693111/fbahicsumiw6nj8df44d.png',
+    'https://res.cloudinary.com/duaxitxph/image/upload/v1732693104/iahyx4tmsbsf2l2t6wdu.png',
+    'https://res.cloudinary.com/duaxitxph/image/upload/v1732693101/chdzzmkdoudncvaontbh.png',
+  ];
+  const SigninWithGoogle = async () => {
+    try {
+      const { user } = await signInWithPopup(auth, provider);
+      await updateProfile(user, { photoURL: avatars[4] });
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      toast.error("Error during sign-in:", error)
+    }
   };
 
   const handleSignup = async (e) => {
@@ -29,117 +43,81 @@ function Signup() {
       if (!name, !email, !password) {
         return toast.error('all Inputs should be filled')
       }
-      const { user } = await createUserWithEmailAndPassword(auth, email, password);;
-      const profileImage = defaultProfilePic;
-      await updateProfile(user, {
-        displayName: name,
-        photoURL: profileImage
-      });
+      dispatch(setcurrentUserLoading(true))
+      const profileImage = avatars[profileIndex];
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(user, { displayName: name, photoURL: profileImage });
       await addUserToFirestore(user.uid, { email, password, name, profileImage });
     } catch (error) {
       return toast.error("Failed to sign up", error);
+      dispatch(setcurrentUserLoading(false))
     }
   };
 
   return (
-    <div className="h-screen max-h-[1200px] flex items-center justify-evenly relative bg-[#FAB76E] text-black w-[100vw] overflow-hidden max-w-[1500px]">
-      <img src={titleCar} alt="titleCar" className='absolute z-50 left-[8%] w-[50%]' />
-      <div className='w-[50%] h-screen max-h-[1200px] bg-[#080808]'
+    <BgDesing>
+      <div className="w-full py-[20px] px-[30px] rounded-lg shadow-lg  "
         style={{
-          clipPath: "polygon(0 0, 100% 0, 75% 100%, 0 100%)",
+          background: '#ffe2c266',
+          boxShadow: ' 0 4px 30px rgba(0, 0, 0, 0.2)',
+          backdropFilter: 'blur(10.7px)'
         }}>
-        <div className='flex flex-col justify-center items-center'>
-          <h1 className='text-[#D27007] text-[37px] font-[cursive] text-center font-bold mt-[15px] '>BOOST</h1>
-          <p className='text-white  text-center leading-5'>__ It doesn't Run fast; it Fly slowly __</p>
-        </div>
-
-      </div>
-      <div className='w-[50%] flex flex-col items-end justify-center  pr-[5%]'>
-        <div className='relative w-[350px] '>
-          <div className='w-[100px] h-[100px] bg-[#611723] rounded-full absolute top-[-30px] right-[-30px] '></div>
-          <div className='w-[100px] h-[100px] bg-[#000000] rounded-full absolute bottom-[-30px] left-[-30px] '></div>
-
-        <div className="w-full p-[30px] rounded-lg shadow-lg  "
-          style={{
-            background: '#ffe2c259',
-            boxShadow: ' 0 4px 30px rgba(0, 0, 0, 0.2)',
-            backdropFilter: 'blur(8.7px)'
-          }}>
-          <div className='flex justify-between items-center '>
-
-            <h2 className="text-3xl font-semibold text-center">Sign Up</h2>
-            <div className="flex gap-2 items-center relative">
-              <label className="flex w-[80px] h-[80px] justify-center items-center border-2 border-dashed border-gray-300 rounded-lg p-3 cursor-pointer hover:bg-gray-100 transition duration-300">
-                <span className="text-gray-700 text-center text-[30px]"><CiCamera /></span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-              </label>
-
-              {selectedImage && (
-                <div className="absolute left-[2px] pointer-events-none">
-                  <img
-                    src={URL.createObjectURL(selectedImage)}
-                    alt="Selected"
-                    className="w-[75px] h-[75px] object-cover rounded-md"
-                  />
-                </div>
-              )}
-            </div>
+        <div className='flex flex-col justify-between items-center '>
+          <h2 className="text-3xl font-bold text-center">Sign Up</h2>
+          <div className='flex gap-3 my-[15px]'>
+            {avatars.map((image, index) => (
+              <div className={`w-[45px] h-[45px] overflow-hidden rounded-full bg-[#00000082] border-2 border-[#303030] cursor-pointer ${profileIndex === index ? 'p-2 border-[#ffffff]' : 'p-[4px]'} `} onClick={() => setProfileIndex(index)}>
+                <img src={image} alt={index} className='' />
+              </div>
+            ))}
           </div>
-          <form onSubmit={handleSignup} className="space-y-[30px]">
-            {/* <div className='flex gap-5'> */}
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full py-0 h-[30px]  bg-transparent focus:outline-none border-b-2 border-[black]"
-              />
-
-              <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full py-0 h-[30px]  bg-transparent focus:outline-none border-b-2 border-[black]"
-                />
-              
-            {/* </div> */}
-            <div className='relative flex items-center'>
-
+        </div>
+        <form onSubmit={handleSignup} className="space-y-[30px]">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full py-0 h-[30px]  bg-transparent focus:outline-none border-b-2 border-[black]"
+          />
+          <input
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full py-0 h-[30px]  bg-transparent focus:outline-none border-b-2 border-[black]"
+          />
+          <div className='relative flex items-center'>
             <input
-              type={passwordVisible?'text':'password'}
+              type={passwordVisible ? 'text' : 'password'}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full py-0 h-[30px]  bg-transparent focus:outline-none border-b-2 border-[black]"
             />
-            <div className='absolute right-2 cursor-pointer' onClick={()=>{
+            <div className='absolute right-2 cursor-pointer' onClick={() => {
               setPasswordVisible(!passwordVisible)
             }}>
-              {passwordVisible? <IoMdEye/> :<RiEyeCloseFill />}
+              {passwordVisible ? <IoMdEye /> : <RiEyeCloseFill />}
             </div>
-</ div>
-            <button
-              type="submit"
-              className="w-full p-3 mt-4 font-semibold text-white rounded-md bg-[black] hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Sign Up
-            </button>
-          </form>
-          <p className="text-gray-400 mt-4 text-center">
-            Already have an account? <Link to="/login" className="text-black hover:underline">Login</Link>
-          </p>
-        </div>
-        </div>
+          </ div>
+          <button
+            type="submit"
+            className="w-full p-3 mt-4 font-semibold text-white rounded-md bg-[black] hover:scale-105 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Sign Up
+          </button>
+        </form>
 
+        <button onClick={() => SigninWithGoogle()} class="flex items-center w-full justify-center gap-2 px-4 py-3 my-[10px] bg-[#000000] rounded-md shadow hover:scale-105 transition-all">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="w-5 h-5" />
+          <span class="text-[#ffffff] font-semibold">Continue with Google</span>
+        </button>
+        <p className="text-gray-400 mt-4 text-center">
+          Already have an account? <Link to="/login" className="text-black hover:underline">Login</Link>
+        </p>
       </div>
-
-    </div>
+    </BgDesing>
   );
 }
 
