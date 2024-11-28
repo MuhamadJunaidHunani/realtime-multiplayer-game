@@ -11,10 +11,17 @@ function Test() {
   const [myId, setMyId] = useState(null);
   const [winner, setWinner] = useState(null);
 
+  useEffect(()=>{
+    console.log("📒📒");
+    
+  })
+
   useEffect(() => {
+    console.log("hello world");
     // Initialize with current players
     socket.on('init', (playersData) => {
       setPlayers(playersData);
+      
     });
 
     // Add a new player
@@ -39,7 +46,7 @@ function Test() {
         delete updated[id];
         return updated;
       });
-    });
+    } , []);
 
     // Set your ID
     socket.on('connect', () => {

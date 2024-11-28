@@ -18,6 +18,7 @@ import { FetchUsers } from "./Firebase/FetchUsers";
 import { setUser, setUserLoading } from "./Redux/Slices/Users.slice";
 import Leaderboard from "./Pages/LeaderBoard";
 import Hearder from "./Components/Hearder";
+import Players from "./Pages/players";
 
 const App = () => {
   const dispatch = useDispatch()
@@ -67,6 +68,7 @@ const App = () => {
     { path: '/', element: <PrivateRoutes element={<HomeRedirect />} /> },
     { path: '/test', element: <PrivateRoutes element={<Test />} /> },
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
+    { path: '/players', element: <PrivateRoutes element={<Players />} /> },
   ]);
 
 
