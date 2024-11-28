@@ -1,41 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ChallengeModal from '../Components/ChallengeModal';
 import PlayersList from '../Components/PlayersList';
 import GameRedirect from '../Components/GameRedirect';
 import Loader from '../Components/Loader';
+import { sendChallenge } from '../Firebase/SendChallenge';
+import ChallengesQueue from '../Components/ChallengesQueue';
+import { getChallenges } from '../Firebase/UpdateChallanges';
+import { generateChallengeId } from '../Firebase/generateConversationId';
 
 const Players = () => {
-  const { currentUser, currentUserLoading } = useSelector((state) => state.currentUser);
-  const { users, userLoading } = useSelector((state) => state.users);
-  const [challengedPlayer, setChallengedPlayer] = useState(null);
-  const [challengeResult, setChallengeResult] = useState(null);
+    const { currentUser, currentUserLoading } = useSelector((state) => state.currentUser);
+    const { users, userLoading } = useSelector((state) => state.users);
+    const [challengedPlayer, setChallengedPlayer] = useState(null);
+    const [status, setStatus] = useState('pending');
+    const [redirectRoomId, setRedirectRoomId] = useState(null);
 
-  const handleChallenge = (player) => {
-    setChallengedPlayer(player);
-  };
+    const handleChallenge = async (player) => {
+        setChallengedPlayer(player);
+        await sendChallenge(currentUser.uid, player.id);
+    };
 
-  if (currentUserLoading || userLoading) {
-    return <Loader />
-  }
+    useEffect(() => {
+        if (currentUser && challengedPlayer) {
+            console.log(challengedPlayer);
+            
+            const unsubscribe = getChallenges(challengedPlayer.id, (data) => {
+                console.log(data, "<<<==>>>");
+                const currentChallenge = data?.find((data) => data.id === currentUser.uid)
+                setStatus(currentChallenge.status)
+                if (currentChallenge.status === "accepted") {
+                    const roomId = generateChallengeId(currentUser.uid, challengedPlayer.id);
+                    setRedirectRoomId(roomId);
+                  }
+                currentChallenge.status !== "pending" ? setChallengedPlayer(null) : ''
+            });
 
-  if (challengeResult === 'accepted') {
-    const roomId = `${selectedPlayer.id}_${Math.random().toString(36).substr(2, 9)}`;
-    return <GameRedirect roomId={roomId} />;
-  }
+            return () => {
+                unsubscribe();
+            };
+        }
 
-  return (
-    <div>
-      <PlayersList onChallenge={handleChallenge} users={users} currentUser={currentUser}  />
-      {challengedPlayer && (
-        <ChallengeModal
-          challenger={currentUser}
-          opponent={challengedPlayer}
-          onResult={setChallengeResult}
-        />
-      )}
-    </div>
-  );
+    }, [currentUser, challengedPlayer]);
+
+    if (currentUserLoading || userLoading) {
+        return <Loader />
+    }
+
+
+    if (status === 'accepted' && redirectRoomId) {
+        console.log(challengedPlayer);
+        return <GameRedirect roomId={redirectRoomId} />;
+    }
+
+    return (
+        <div>
+            <PlayersList onChallenge={handleChallenge} challengedPlayer={challengedPlayer} users={users} currentUser={currentUser} />
+            {challengedPlayer && (
+                <ChallengeModal
+                    challenger={currentUser}
+                    opponent={challengedPlayer}
+                    setChallengedPlayer={setChallengedPlayer}
+                    status={status}
+                />
+            )}
+            <ChallengesQueue currentUser={currentUser} />
+        </div>
+    );
 };
 
 export default Players;

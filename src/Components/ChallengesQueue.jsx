@@ -1,39 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { acceptChallenge, getChallenges, rejectChallenge } from '../Firebase/UpdateChallanges';
+import { generateChallengeId } from '../Firebase/generateConversationId';
+import GameRedirect from './GameRedirect';
 
 const ChallengesQueue = ({ currentUser }) => {
   const [challenges, setChallenges] = useState([]);
-  const db = getFirestore();
+  const [redirectRoomId, setRedirectRoomId] = useState(null);
 
   useEffect(() => {
-    const challengesRef = collection(db, 'users', currentUser.id, 'challenges');
-    const unsubscribe = onSnapshot(challengesRef, (snapshot) => {
-      const newChallenges = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setChallenges(newChallenges);
-    });
-
+    const unsubscribe = getChallenges(currentUser.uid, setChallenges);
     return () => unsubscribe();
-  }, [currentUser, db]);
+  }, [currentUser]);
 
-  const acceptChallenge = async (challengeId) => {
-    const challengeRef = doc(db, 'users', currentUser.id, 'challenges', challengeId);
-    await updateDoc(challengeRef, { status: 'accepted' });
-
-    // Redirect to game room (room ID can be challengeId)
-    window.location.href = `/game/${challengeId}`;
+  const handleAcceptChallenge = async (challengeId) => {
+    await acceptChallenge(currentUser.uid, challengeId);
+    const roomId = generateChallengeId(currentUser.uid , challengeId);
+    console.log(roomId);
+    setRedirectRoomId(roomId); 
   };
 
-  const rejectChallenge = async (challengeId) => {
-    const challengeRef = doc(db, 'users', currentUser.id, 'challenges', challengeId);
-    await updateDoc(challengeRef, { status: 'rejected' });
-    await deleteDoc(challengeRef); // Remove the challenge after rejection
+  const handleRejectChallenge = async (challengeId) => {
+    await rejectChallenge(currentUser.uid, challengeId);
   };
+
+  if (redirectRoomId) {
+    return <GameRedirect roomId={redirectRoomId} />;
+  }
+
 
   return (
-    <div>
+    <div className='w-[300px] p-[20px] border'>
       <h2>Challenges Queue</h2>
       {challenges.length === 0 ? (
         <p>No challenges at the moment.</p>
@@ -44,8 +40,8 @@ const ChallengesQueue = ({ currentUser }) => {
               Challenge from {challenge.challengerId} - {challenge.status}
               {challenge.status === 'pending' && (
                 <>
-                  <button onClick={() => acceptChallenge(challenge.id)}>Accept</button>
-                  <button onClick={() => rejectChallenge(challenge.id)}>Reject</button>
+                  <button onClick={() => handleAcceptChallenge(challenge.id)}>Accept</button>
+                  <button onClick={() => handleRejectChallenge(challenge.id)}>Reject</button>
                 </>
               )}
             </li>

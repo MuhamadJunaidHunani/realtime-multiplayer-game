@@ -1,47 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { doc, setDoc, onSnapshot, deleteDoc } from 'firebase/firestore';
+import { getChallenges } from '../Firebase/UpdateChallanges';
 import { generateChallengeId } from '../Firebase/generateConversationId';
-import { db } from '../Firebase/Firebase';
 
-const ChallengeModal = ({ challenger, opponent, onResult }) => {
+const ChallengeModal = ({ challenger, opponent, setChallengedPlayer }) => {
   const [status, setStatus] = useState('pending');
 
+
   useEffect(() => {
-    const challengeId = generateChallengeId(challenger.id , opponent.id);
-    const challengeRef = doc(db, 'challenges', challengeId);
-
-    setDoc(challengeRef, {
-      challengerId: challenger.uid,
-      opponentId: opponent.id,
-      status: 'pending',
-      createdAt: Date.now(),
-    });
-
-    const unsubscribe = onSnapshot(challengeRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        setStatus(data.status);
-      }
+    const unsubscribe = getChallenges(opponent.id, (data) => {
+      console.log(data, "<<<==>>>");
+      const currentChallenge = data?.find((data) => data.id === challenger.uid)
+      setStatus(currentChallenge.status)
+      currentChallenge.status !== "pending" ? setChallengedPlayer(null):''
     });
 
     const timeout = setTimeout(async () => {
-      await deleteDoc(challengeRef);
-      setStatus('expired');
+      setChallengedPlayer(null);
     }, 30000);
 
     return () => {
       unsubscribe();
       clearTimeout(timeout);
     };
-  }, [challenger, opponent, db]);
+  }, [opponent , challenger]);
 
-  useEffect(() => {
-    if (status !== 'pending') onResult(status);
-  }, [status, onResult]);
+  if (status === 'accepted' ) {
+    const redirectRoomId = generateChallengeId(challenger.uid , opponent.id)
+    return <GameRedirect roomId={redirectRoomId} />;
+  }
 
   return (
-    <div>
-      <h2>Waiting for {opponent.name} to accept your challenge...</h2>
+    <div className='w-[300px] p-[20px] border-2 border-[green]'>
+      {status === 'pending' && <p>Waiting for {opponent.name} to accept your challenge...</p>}
       {status === 'expired' && <p>The challenge has expired.</p>}
       {status === 'accepted' && <p>Challenge accepted! Redirecting...</p>}
       {status === 'rejected' && <p>Challenge rejected.</p>}

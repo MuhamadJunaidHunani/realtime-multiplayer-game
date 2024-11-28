@@ -19,6 +19,7 @@ import { setUser, setUserLoading } from "./Redux/Slices/Users.slice";
 import Leaderboard from "./Pages/LeaderBoard";
 import Hearder from "./Components/Hearder";
 import Players from "./Pages/players";
+import Game from "./Pages/Game";
 
 const App = () => {
   const dispatch = useDispatch()
@@ -69,6 +70,7 @@ const App = () => {
     { path: '/test', element: <PrivateRoutes element={<Test />} /> },
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
     { path: '/players', element: <PrivateRoutes element={<Players />} /> },
+    { path: '/game/:roomId', element: <PrivateRoutes element={<Game />} /> },
   ]);
 
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PlayersList = ({ onChallenge , currentUser , users }) => {
+const PlayersList = ({ onChallenge, currentUser, users, challengedPlayer }) => {
 
   return (
     <div>
@@ -10,7 +10,12 @@ const PlayersList = ({ onChallenge , currentUser , users }) => {
           .map((player) => (
             <li key={player.id}>
               {player.name}
-              <button onClick={() => onChallenge(player)}>Challenge</button>
+              <button
+                disabled={!!challengedPlayer}
+                onClick={() => onChallenge(player)}
+              >
+                Challenge
+              </button>
             </li>
           ))}
       </ul>

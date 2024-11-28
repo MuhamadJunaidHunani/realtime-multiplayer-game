@@ -1,8 +1,8 @@
 import { collection, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './Firebase';
 
-export const getChallenges = (CurrentUserId, callback) => {
-  const challengesRef = collection(db, 'users', CurrentUserId, 'challenges');
+export const getChallenges = (UserId, callback) => {
+  const challengesRef = collection(db, 'users', UserId, 'challenges');
   const unsubscribe = onSnapshot(challengesRef, (snapshot) => {
     const challenges = snapshot.docs.map((doc) => ({
       id: doc.id,

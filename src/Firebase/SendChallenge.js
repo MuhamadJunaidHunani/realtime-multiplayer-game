@@ -1,4 +1,4 @@
-import { getFirestore, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 
 export const sendChallenge = async (challengerId, opponentId) => {
   const db = getFirestore();
@@ -13,8 +13,8 @@ export const sendChallenge = async (challengerId, opponentId) => {
   await setDoc(challengeRef, challengeData);
 
   setTimeout(async () => {
-    const challengeSnapshot = await challengeRef.get();
-    if (challengeSnapshot.exists() && challengeSnapshot.data().status === 'pending') {
+    const challengeSnapshot = await getDoc(challengeRef);
+    if (challengeSnapshot.exists()) {
       await deleteDoc(challengeRef);
     }
   }, 30000);
