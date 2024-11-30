@@ -82,7 +82,7 @@ const App = () => {
 </div> */}
   return (
     <>
-    {/* <Hearder/> */}
+    <Hearder/>
         <RouterProvider router={router} />
         <ToastContainer />
     </>
