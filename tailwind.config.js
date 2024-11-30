@@ -5,7 +5,17 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        roadScroll: "scroll 3s linear infinite",
+      },
+      keyframes: {
+        scroll: {
+          "0%": { backgroundPositionY: "0%" },
+          "100%": { backgroundPositionY: "100%" },
+        },
+      },
+    },
   },
   plugins: [],
 }

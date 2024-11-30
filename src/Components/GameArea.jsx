@@ -13,8 +13,25 @@ const GameArea = () => {
   const gameAreaRef = useRef(null);
 
   useEffect(() => {
-    const handleKeyDown = (e) => setKeys((prev) => ({ ...prev, [e.key]: true }));
-    const handleKeyUp = (e) => setKeys((prev) => ({ ...prev, [e.key]: false }));
+    const handleKeyDown = (e) => {
+      setKeys((prev) => {
+        if (!prev[e.key]) {
+          // Only update state if the key wasn't already pressed
+          return { ...prev, [e.key]: true };
+        }
+        return prev; // No state update if the key is already true
+      });
+    };
+
+    const handleKeyUp = (e) => {
+      setKeys((prev) => {
+        if (prev[e.key]) {
+          // Only update state if the key was pressed
+          return { ...prev, [e.key]: false };
+        }
+        return prev; // No state update if the key is already false
+      });
+    };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -25,28 +42,41 @@ const GameArea = () => {
     };
   }, []);
 
+  const abc = useRef()
+
   useEffect(() => {
+    console.log("chalaaa", keys);
+
+
+
     const gameLoop = () => {
       updateRoad();
       adjustMovement();
       updateEnemyCars();
-      handleSpeedDecay();
+      // handleSpeedDecay();
 
-      if (Math.random() < 0.01 && roadSpeed > 2) createEnemyCar();
+      if (Math.random() < 0.01 && roadSpeed > 2);
 
-      requestAnimationFrame(gameLoop);
+      abc.current = requestAnimationFrame(gameLoop);
+
     };
     gameLoop();
-  }, []);
+    return (() => {
+      cancelAnimationFrame(abc.current)
+    })
+
+  }, [keys]);
 
   const updateRoad = () => setRoadPosition((pos) => pos + roadSpeed);
 
   const adjustMovement = () => {
     setCar((prevCar) => {
       let { x, y } = prevCar;
+      console.log("keys:", roadPosition , roadSpeed);
+
       if (keys["ArrowLeft"] && x > 0) x -= 5;
       if (keys["ArrowRight"] && x < 350) x += 5;
-      if (keys["ArrowUp"] && roadSpeed < 30) setRoadSpeed((speed) => speed + 0.1);
+      if (keys["ArrowUp"] && roadSpeed < 30) setRoadSpeed((speed) => speed + 0.1) ;
       if (keys["ArrowDown"] && roadSpeed > 3) setRoadSpeed((speed) => speed - 0.1);
       return { x, y };
     });
@@ -71,9 +101,9 @@ const GameArea = () => {
     );
   };
 
-  const handleSpeedDecay = () => {
-    if (!keys["ArrowUp"] && roadSpeed > 3) setRoadSpeed((speed) => speed - 0.01);
-  };
+  // const handleSpeedDecay = () => {
+  //   if (!keys["ArrowUp"] && roadSpeed > 3) setRoadSpeed((speed) => speed - 0.01);
+  // };
 
   return (
     <div

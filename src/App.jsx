@@ -18,8 +18,9 @@ import { FetchUsers } from "./Firebase/FetchUsers";
 import { setUser, setUserLoading } from "./Redux/Slices/Users.slice";
 import Leaderboard from "./Pages/LeaderBoard";
 import Hearder from "./Components/Hearder";
-import Players from "./Pages/players";
+import Players from "./Pages/Players";
 import Game from "./Pages/Game";
+import CarRace from "./Pages/CarRace";
 
 const App = () => {
   const dispatch = useDispatch()
@@ -71,6 +72,7 @@ const App = () => {
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
     { path: '/players', element: <PrivateRoutes element={<Players />} /> },
     { path: '/game/:roomId', element: <PrivateRoutes element={<Game />} /> },
+    { path: '/CarRace', element: <PrivateRoutes element={<CarRace />} /> },
   ]);
 
 
@@ -80,7 +82,7 @@ const App = () => {
 </div> */}
   return (
     <>
-    <Hearder/>
+    {/* <Hearder/> */}
         <RouterProvider router={router} />
         <ToastContainer />
     </>
