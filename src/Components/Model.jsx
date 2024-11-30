@@ -1,51 +1,72 @@
-// import * as THREE from 'three';
-// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
-// // Scene setup
-// const scene = new THREE.Scene();
+const ThreeScene = () => {
+  const mountRef = useRef(null);
 
-// // Camera setup
-// const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-// camera.position.z = 10; // Adjust this if the model is too close or too far
+  useEffect(() => {
+    // Scene setup
+    const scene = new THREE.Scene();
 
-// // Renderer setup
-// const renderer = new THREE.WebGLRenderer();
-// renderer.setSize(window.innerWidth, window.innerHeight);
-// document.body.appendChild(renderer.domElement);
+    // Camera setup
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    camera.position.z = 10;
 
-// // Lighting - ambient light and directional light
-// const ambientLight = new THREE.AmbientLight(0x404040, 1); // Soft white light
-// scene.add(ambientLight);
+    // Renderer setup
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    mountRef.current.appendChild(renderer.domElement);
 
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White directional light
-// directionalLight.position.set(10, 10, 10); // Position the light above the scene
-// scene.add(directionalLight);
+    // Lighting setup
+    const ambientLight = new THREE.AmbientLight(0x404040, 1);
+    scene.add(ambientLight);
 
-// // Load GLTF model
-// const loader = new GLTFLoader();
-// loader.load(
-//   '/models/car.glb', // Update with the correct path to your model
-//   (gltf) => {
-//     console.log('Model loaded successfully');
-//     scene.add(gltf.scene);
-//   },
-//   undefined,
-//   (error) => {
-//     console.error('Error loading model:', error);
-//   }
-// );
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(10, 10, 10);
+    scene.add(directionalLight);
 
-// // Animation loop
-// const animate = () => {
-//   requestAnimationFrame(animate);
-  
-//   // Optional: Rotate the model to view it better
-//   if (scene.children[0]) {
-//     scene.children[0].rotation.y += 0.06; // Rotate model slowly
-//   }
+    // Load GLTF model
+    const loader = new GLTFLoader();
+    loader.load(
+      '/models/car.glb', // Update with the correct path to your model
+      (gltf) => {
+        console.log('Model loaded successfully');
+        scene.add(gltf.scene);
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading model:', error);
+      }
+    );
 
-//   renderer.render(scene, camera);
-// };
+    // Animation loop
+    const animate = () => {
+      requestAnimationFrame(animate);
 
-// // Start animation loop
-// animate();
+      // Optional: Rotate the model to view it better
+      if (scene.children[0]) {
+        scene.children[0].rotation.y += 0.06;
+      }
+
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    // Cleanup function
+    return () => {
+      mountRef.current.removeChild(renderer.domElement);
+      renderer.dispose();
+    };
+  }, []);
+
+  return <div ref={mountRef} />;
+};
+
+export default ThreeScene;

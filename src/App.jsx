@@ -29,13 +29,13 @@ const App = () => {
     dispatch(setcurrentUserLoading(true));
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        const  {
+        const {
           uid,
           email,
           displayName,
           photoURL,
         } = user;
-        dispatch(setcurrentUser({uid , email , displayName , photoURL}));
+        dispatch(setcurrentUser({ uid, email, displayName, photoURL }));
         dispatch(setcurrentUserLoading(false));
       } else {
         dispatch(setcurrentUser(null));
@@ -68,6 +68,7 @@ const App = () => {
     { path: '/signup', element: <PublicRoutes element={<Signup />} /> },
     { path: '/messages/:id', element: <PrivateRoutes element={<GameArea />} /> },
     { path: '/', element: <PrivateRoutes element={<HomeRedirect />} /> },
+    // { path: '/model', element: <PrivateRoutes element={<ThreeScene />} /> },
     { path: '/test', element: <PrivateRoutes element={<Test />} /> },
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
     { path: '/players', element: <PrivateRoutes element={<Players />} /> },
@@ -82,9 +83,9 @@ const App = () => {
 </div> */}
   return (
     <>
-    <Hearder/>
-        <RouterProvider router={router} />
-        <ToastContainer />
+      {/* <Hearder /> */}
+      <RouterProvider router={router} />
+      <ToastContainer />
     </>
 
   );
