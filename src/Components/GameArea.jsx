@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import roadImage from "../assets/images/road.jpg";
+import treeImage from "../assets/images/tree.png";
 import carImage from "../../../../../Downloads/Screenshot_2024-12-01_014756-removebg-preview.png";
 
 const GameArea = () => {
   const gameAreaRef = useRef(null);
   const roadRef = useRef(null);
+  const treeRefs = useRef([]);
   const playerCarRef = useRef(null);
   const [roadSpeed, setRoadSpeed] = useState(3);
   const [distance, setDistance] = useState(0);
+  const [trees, setTrees] = useState([...Array(6).keys()]);
 
   const car = useRef({
     x: 300, // Initial X position
@@ -102,8 +105,34 @@ const GameArea = () => {
     }
   };
 
+  const animateTrees = () => {
+    setTrees((prevTrees) => {
+      return prevTrees.map((tree, index) => {
+        const treeRef = treeRefs.current[index];
+        if (treeRef) {
+          const currentLeft = parseFloat(treeRef.style.left);
+          const currentTop = parseFloat(treeRef.style.top);
+
+          // Update position
+          treeRef.style.left = `${currentLeft - 0.2}%`;
+          treeRef.style.top = `${currentTop + 0.07}%`;
+
+          // Scale animation
+          const scaleFactor =
+            parseFloat(treeRef.style.transform.match(/scale\((.*?)\)/)?.[1]) || 1;
+          treeRef.style.transform = `translate(-50%, -50%) scale(${scaleFactor + 0.005})`;
+
+          // Remove if out of bounds
+          if (currentLeft < -11) {
+            return null; // Mark for removal
+          }
+        }
+        return tree; // Keep tree if it's still in bounds
+      }).filter(Boolean); // Remove `null` elements
+    });
+  };
   const updateDistance = (deltaTime) => {
-    setDistance((prev) => prev + roadSpeed * (1000 / 3600) * deltaTime);
+    setDistance((prev) => prev + roadSpeedRef.current * (1000 / 3600) * deltaTime);
   };
 
   const gameLoop = (currentTimestamp) => {
@@ -114,6 +143,7 @@ const GameArea = () => {
     adjustMovement();
     handleSpeedDecay();
     updateRoad();
+    animateTrees()
 
     animationRef.current = requestAnimationFrame(gameLoop);
   };
@@ -153,12 +183,34 @@ const GameArea = () => {
           // backgroundPositionY:`0px`,
           position: 'absolute',
           width: '20vw',
-          height: '300vh',
+          height: '341vh',
           top:'60%',
           left:'50%',
-          transform:'translate(-50%, -50%) rotateX(90deg)'
+          transform:'translate(-50%, -50%) rotateX(92deg)'
         }}
       ></div>
+      <>
+      {trees.map((_, index) => (
+        <div
+          key={index}
+          ref={(el) => (treeRefs.current[index] = el)}
+          style={{
+            backgroundImage: `url(${treeImage})`,
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            position: 'absolute',
+            width: `${20 - index * 1.5}vw`,
+            aspectRatio: '1 / 2',
+            height: 'auto',
+            top: `${73 - index * 2.7}%`,
+            left: `${15 * index - index * 7}%`,
+            transform: `translate(-50%, -50%) scale(${1 - index * 0.1})`,
+            zIndex: -index,
+          }}
+        ></div>
+      ))} 
+      </>
+
       <div
         id="playerCar"
         ref={playerCarRef}
