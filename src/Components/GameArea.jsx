@@ -1,11 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import roadImage from "../assets/images/road.jpg";
 import treeImage from "../assets/images/tree.png";
+import line from "../assets/images/line.png";
+import line2 from "../assets/images/line2.png";
+import fence from "../assets/images/fence.png";
+import fence2 from "../assets/images/fence2.png";
+import mount from "../assets/images/360_F_248730987_xRhUf0X7eMmK8cb1oo9gE64kpZrO1aSoa.jpg";
 import carImage from "../../../../../Downloads/Screenshot_2024-12-01_014756-removebg-preview.png";
+import { backgroundBlurriness } from "three/webgpu";
 
 const GameArea = () => {
   const gameAreaRef = useRef(null);
   const roadRef = useRef(null);
+  const lineRef = useRef(null);
+  const lineRef2 = useRef(null);
   const treeRefs = useRef([]);
   const playerCarRef = useRef(null);
   const [roadSpeed, setRoadSpeed] = useState(3);
@@ -23,6 +31,7 @@ const GameArea = () => {
   const animationRef = useRef();
 
   useEffect(() => {
+    
     const handleKeyDown = (e) => {
       keysRef.current[e.key] = true;
     };
@@ -45,6 +54,8 @@ const GameArea = () => {
     roadPosition.current += roadSpeedRef.current; // Use ref for the current speed
     if (roadRef.current) {
       roadRef.current.style.backgroundPositionY = `${roadPosition.current}px`;
+      lineRef.current.style.backgroundPositionX = `-${roadPosition.current}px`;
+      lineRef2.current.style.backgroundPositionX = `-${roadPosition.current+200}px`;
     }
   };
 
@@ -88,10 +99,10 @@ const GameArea = () => {
 
     if (playerCarRef.current) {
       playerCarRef.current.style.transform = `translateX(${carData.x}px)`;
-      const width = calculatePercentage(carData.x , 150 , 750);
+      // const width = calculatePercentage(carData.x , 150 , 750);
       
-      playerCarRef.current.style.width = `${width}px`;
-      playerCarRef.current.style.height = `${width}px`;
+      // playerCarRef.current.style.width = `${width}px`;
+      // playerCarRef.current.style.height = `${width}px`;
     }
   };
 
@@ -124,7 +135,7 @@ const GameArea = () => {
 
           // Remove if out of bounds
           if (currentLeft < -11) {
-            return null; // Mark for removal
+            return null; 
           }
         }
         return tree; // Keep tree if it's still in bounds
@@ -164,6 +175,10 @@ const GameArea = () => {
       ref={gameAreaRef}
       style={{
 
+        background:`url(${mount}) , #00678F`,
+        backgroundRepeat:'no-repeat , no-repeat ',
+        backgroundSize:'100% 59% , 50%',
+        backgroundPosition:'center top , center bottom ',
         position: 'relative',
         width: '100%',
         height: '100vh',
@@ -189,26 +204,67 @@ const GameArea = () => {
           transform:'translate(-50%, -50%) rotateX(92deg)'
         }}
       ></div>
+      <div
+        className="line"
+        ref={lineRef}
+        style={{
+          background: `url(${line}) , url(${line2}) `,
+          backgroundRepeat: 'repeat-x , repeat-x',
+          backgroundSize: 'contain',
+          backgroundPositionY:`bottom`,
+          position: 'absolute',
+          width: '110vw',
+          height: '15vh',
+          top:'48.5%',
+          left:'29%',
+          transform:'translate(-46%, -1%) rotateY(79deg) rotateZ(0.5deg)',
+          zIndex:'-100',
+          border:'1px solid transparent',
+        }}
+      ></div>
+      <div
+        className="line"
+        ref={lineRef2}
+        style={{
+          background: `url(${line}) , url(${line2}) `,
+          backgroundRepeat: 'repeat-x , repeat-x',
+          backgroundSize: 'contain',
+          backgroundPositionY:`bottom`,
+          position: 'absolute',
+          width: '110vw',
+          height: '15vh',
+          top:'48.5%',
+          left:'29%',
+          transform:'translate(-15%, -1%) rotateY(101deg) rotateZ(0.5deg)',
+          zIndex:'-100',
+          border:'1px solid transparent',
+        }}
+      ></div>
+      <div className="w-[180px] h-[100px] bg-[black] z-[10000] absolute top-[44%] right-[42%]"
+      style={{
+        pointerEvents:' none',
+        background:'linear-gradient(to top, rgba(135, 206, 250, 1), rgba(135, 206, 250, 0.3), transparent)',
+      }
+      }
+      >
+
+      </div>
+
       <>
-      {trees.map((_, index) => (
-        <div
-          key={index}
-          ref={(el) => (treeRefs.current[index] = el)}
+        {/* <div
+          key={'a'}
           style={{
             backgroundImage: `url(${treeImage})`,
             backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            position: 'absolute',
-            width: `${20 - index * 1.5}vw`,
+            backgroundRepeat: 'repeat',
+            width: `100vw`,
+            height:'150px',
+            backgroundColor:'black',
+            padding:'20px',
             aspectRatio: '1 / 2',
-            height: 'auto',
-            top: `${73 - index * 2.7}%`,
-            left: `${15 * index - index * 7}%`,
-            transform: `translate(-50%, -50%) scale(${1 - index * 0.1})`,
-            zIndex: -index,
+            zIndex: -1,
           }}
-        ></div>
-      ))} 
+        ></div> */}
       </>
 
       <div
