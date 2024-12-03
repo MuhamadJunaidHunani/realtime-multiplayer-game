@@ -2,11 +2,11 @@ import React from "react";
 import "./style.css";
 
 
-const Controls = ({ speed, distance }) => {
+const Controls = ({ roadSpeed, distance }) => {
   return (
-    <div className="controlCont">
-      <h1 className="speedMeter">{Math.round(speed * 10)} km/h</h1>
-      <h1 className="distanceMeter">{distance.toFixed(2)} m</h1>
+    <div className="info" >
+      <h1>Speed: {Math.round(roadSpeed * 10)} km/h</h1>
+      <h1>Distance: {distance.toFixed(2)} m</h1>
     </div>
   );
 };

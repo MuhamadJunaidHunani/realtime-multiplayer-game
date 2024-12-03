@@ -1,15 +1,22 @@
 import React from "react";
+import carImage from "../../../../../Downloads/Screenshot_2024-12-01_014756-removebg-preview.png";
 
-const PlayerCar = ({ position }) => {
+const PlayerCar = ({ playerCarRef }) => {
   return (
     <div
-      className="absolute w-12 h-24 bg-red-500"
-      style={{
-        left: position.x,
-        top: position.y,
-        transition: "all 0.1s ease-in-out",
-      }}
-    ></div>
+    id="playerCar"
+    ref={playerCarRef}
+    style={{
+      background: `url(${carImage})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      position: "absolute",
+      width: "200px",
+      height: "150px",
+      bottom: '10px'
+    }}
+  ></div>
   );
 };
 

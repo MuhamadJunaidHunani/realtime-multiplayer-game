@@ -1,32 +1,24 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import roadImage from "../assets/images/road.jpg";
 
-const Road = ({ roadSpeed }) => {
-  const roadRef = useRef(null);
-
-  useEffect(() => {
-    const roadElement = roadRef.current;
-    let position = 0;
-
-    const scrollRoad = () => {
-      position += roadSpeed;
-      roadElement.style.backgroundPositionY = `${position}px`;
-      requestAnimationFrame(scrollRoad);
-    };
-
-    scrollRoad();
-    return () => cancelAnimationFrame(scrollRoad);
-  }, [roadSpeed]);
+const Road = ({ roadRef }) => {
 
   return (
     <div
-      ref={roadRef}
-      className="absolute top-0 left-0 w-full h-full bg-cover bg-repeat-y"
-      style={{
-        backgroundImage: `url(${roadImage})`,
-        backgroundPositionY: "0px",
-      }}
-    />
+    className="road"
+    ref={roadRef}
+    style={{
+      background: `url(${roadImage})`,
+      backgroundRepeat: 'repeat-y',
+      backgroundSize: 'contain',
+      position: 'absolute',
+      width: '20vw',
+      height: '341vh',
+      top:'60%',
+      left:'50%',
+      transform:'translate(-50%, -50%) rotateX(92deg)'
+    }}
+  ></div>
   );
 };
 
