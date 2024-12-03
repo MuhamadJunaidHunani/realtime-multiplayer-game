@@ -2,7 +2,7 @@ import React from "react";
 import "./style.css";
 
 
-const Controls = ({ roadSpeed, distance }) => {
+const CarControls = ({ roadSpeed, distance }) => {
   return (
     <div className="info" >
       <h1>Speed: {Math.round(roadSpeed * 10)} km/h</h1>
@@ -11,4 +11,4 @@ const Controls = ({ roadSpeed, distance }) => {
   );
 };
 
-export default Controls;
+export default CarControls;

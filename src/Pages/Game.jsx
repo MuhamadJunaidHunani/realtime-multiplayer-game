@@ -1,29 +1,47 @@
 import React, { useState, useEffect, useRef } from "react";
 import { socket, joinRoom, moveCar } from "../services/socket";
 import PlayerCar from "../Components/PlayerCar";
-import OpponentCar from "../Components/OpponentCar";
-import SpeedDistance from "../Components/SpeedDistance";
+import mount from "../assets/images/360_F_248730987_xRhUf0X7eMmK8cb1oo9gE64kpZrO1aSoa.jpg";
+import smog from "../assets/images/b.png";
 import Road from "../Components/Road";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import Trees from "../Components/Trees";
+import CarControls from "../Components/CarControls";
 
 const Game = () => {
   const { roomId } = useParams();
-  const [players, setPlayers] = useState([]);
-  const [opponent, setOpponent] = useState({});
+
   const { currentUser, currentUserLoading } = useSelector((state) => state.currentUser);
-  const gameAreaRef = useRef(null);
-  const [roadSpeed, setRoadSpeed] = useState(3);
-  const [distance, setDistance] = useState(0);
-  const [playerCar, setPlayerCar] = useState({ x: 0, y: 0 });
   const [opponentCar, setOpponentCar] = useState({ x: 0, y: 0 });
   const [keys, setKeys] = useState({});
   const animationRef = useRef();
+  const gameAreaRef = useRef(null);
+  const roadRef = useRef(null);
+  const treeRef1 = useRef(null);
+  const treeRef2 = useRef(null);
+  const playerCarRef = useRef(null);
+  const roadPosition = useRef(0);
+  const roadSpeedRef = useRef(3);
+  const keysRef = useRef({});
+  const lastTimestampRef = useRef(performance.now());
+  const car = useRef({ x: 300, y: 400, moveSpeed: 5 });
+  const [roadSpeed, setRoadSpeed] = useState(3);
+  const [players, setPlayers] = useState([]);
+  const [opponent, setOpponent] = useState({});
+  const [carView, setCarView] = useState("center");
+  const [distance, setDistance] = useState(0);
+  const distanceRef = useRef(0);
 
-  // Handle keyboard input
+
+
   useEffect(() => {
-    const handleKeyDown = (e) => setKeys((keys) => ({ ...keys, [e.key]: true }));
-    const handleKeyUp = (e) => setKeys((keys) => ({ ...keys, [e.key]: false }));
+    const handleKeyDown = (e) => {
+      keysRef.current[e.key] = true;
+    };
+    const handleKeyUp = (e) => {
+      keysRef.current[e.key] = false;
+    };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -34,44 +52,75 @@ const Game = () => {
     };
   }, []);
 
-  // Smooth game loop using requestAnimationFrame
-  const lastFrameTimeRef = useRef();
+  const updateRoad = () => {
+    roadPosition.current += roadSpeedRef.current;
+    if (roadRef.current) {
+      roadRef.current.style.backgroundPositionY = `${roadPosition.current}px`;
+      treeRef1.current.style.backgroundPositionX = `-${roadPosition.current}px`;
+      treeRef2.current.style.backgroundPositionX = `-${roadPosition.current + 200
+        }px`;
+    }
+  };
+
+
+  const adjustMovement = () => {
+    const { ArrowLeft, ArrowRight, ArrowUp, ArrowDown } = keysRef.current;
+    const carState = car.current;
+    const roadSpeed = roadSpeedRef.current;
+    const screenWidth = window.innerWidth;
+    const moveBounds = { left: 0, right: screenWidth - 200 };
+    const viewThresholds = { left: screenWidth / 4, right: (screenWidth / 4) * 2.5 };
+
+    if (ArrowLeft && carState.x > moveBounds.left) carState.x -= carState.moveSpeed;
+    if (ArrowRight && carState.x < moveBounds.right) carState.x += carState.moveSpeed;
+
+    if (ArrowUp && roadSpeed < 30) {
+      roadSpeedRef.current += 0.1;
+      setRoadSpeed(roadSpeedRef.current);
+    } else if (ArrowDown && roadSpeed > 3) {
+      roadSpeedRef.current -= 0.1;
+      setRoadSpeed(roadSpeedRef.current);
+    }
+    
+    moveCar(roomId, distanceRef.current ,carState.x , carState.y);
+    if (playerCarRef.current) {
+      const newCarView =
+        carState.x > viewThresholds.right ? "right" :
+          carState.x < viewThresholds.left ? "left" :
+            "center";
+      setCarView((prevView) => (prevView !== newCarView ? newCarView : prevView));
+      playerCarRef.current.style.transform = `translateX(${carState.x}px)`;
+    }
+  };
+
+  const handleSpeedDecay = () => {
+    if (!keysRef.current.ArrowUp && roadSpeedRef.current > 5) {
+      roadSpeedRef.current -= 0.1;
+      setRoadSpeed(roadSpeedRef.current);
+    }
+  };
+
+  const updateDistance = (deltaTime) => {
+    distanceRef.current += roadSpeedRef.current * (1000 / 3600) * deltaTime
+    setDistance(distanceRef.current);
+  };
+
   const gameLoop = (currentTimestamp) => {
-    const deltaTime = (currentTimestamp - lastFrameTimeRef.current) / 1000; // Time in seconds
-    lastFrameTimeRef.current = currentTimestamp;
-
-    // Smoothly update distance
-    setDistance((prevDistance) => prevDistance + roadSpeed * deltaTime);
-
-    // Update car position
-    setPlayerCar((prevPosition) => {
-      let { x, y } = prevPosition;
-
-      if (keys["ArrowLeft"] && x > 0) x -= 150 * deltaTime; // Movement scaled by deltaTime
-      if (keys["ArrowRight"] && x < 350) x += 150 * deltaTime;
-      if (keys["ArrowUp"]) setRoadSpeed((speed) => Math.min(speed + 5 * deltaTime, 30));
-      if (keys["ArrowDown"]) setRoadSpeed((speed) => Math.max(speed - 5 * deltaTime, 3));
-
-      moveCar(roomId, x, y); // Notify server of new position
-      return { x, y };
-    });
-
-    // Schedule the next frame
+    const deltaTime = (currentTimestamp - lastTimestampRef.current) / 1000;
+    lastTimestampRef.current = currentTimestamp;
+    updateDistance(deltaTime);
+    adjustMovement();
+    handleSpeedDecay();
+    updateRoad();
     animationRef.current = requestAnimationFrame(gameLoop);
   };
 
   useEffect(() => {
-
-
-    // Start the game loop
     animationRef.current = requestAnimationFrame(gameLoop);
+    return () => cancelAnimationFrame(animationRef.current);
+  }, []);
 
-    return () => {
-      cancelAnimationFrame(animationRef.current);
-    };
-  }, [setKeys]);
 
-  // Handle socket events
   useEffect(() => {
     if (currentUser && roomId) {
       joinRoom(roomId, currentUser);
@@ -100,11 +149,34 @@ const Game = () => {
   }, [roomId, currentUser]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-green-500">
-      <Road roadSpeed={roadSpeed} />
-      <PlayerCar position={playerCar} />
-      <OpponentCar position={opponentCar} />
-      <SpeedDistance speed={roadSpeed * 10} distance={distance} />
+    <div
+      id="gameArea"
+      ref={gameAreaRef}
+      style={{
+        background: `url(${mount}), #00678F`,
+        backgroundRepeat: "no-repeat, no-repeat",
+        backgroundSize: "100% 59%, 50%",
+        backgroundPosition: "center top, center bottom",
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        perspective: "1000px",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          backgroundImage: `linear-gradient(0deg, #7D7D7D 0%, rgba(255,255,255,0) 100%), url(${smog})`,
+          backgroundPosition: "0% 33px, center",
+          backgroundRepeat: "no-repeat, no-repeat",
+          backgroundSize: "100% 30%, cover",
+        }}
+        className="w-[100px] overflow-hidden h-[45px] z-[10000] absolute top-[50%] left-[46.4%] pointer-events-none"
+      ></div>
+      <Road roadRef={roadRef} />
+      <Trees treeRef1={treeRef1} treeRef2={treeRef2} />
+      <PlayerCar playerCarRef={playerCarRef} carView={carView} />
+      <CarControls roadSpeed={roadSpeed} distance={distance} />
     </div>
   );
 };

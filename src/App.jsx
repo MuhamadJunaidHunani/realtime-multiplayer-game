@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import './App.css';
-import Controls from "./Components/Controls";
 import GameArea from "./Components/GameArea";
 import Test from "./Components/Test";
 import PublicRoutes from "./AuthRouting/PublicRoutes";
@@ -21,6 +20,7 @@ import Hearder from "./Components/Hearder";
 import Players from "./Pages/Players";
 import Game from "./Pages/Game";
 import CarRace from "./Pages/CarRace";
+import ThreeScene from "./Components/Model";
 
 const App = () => {
   const dispatch = useDispatch()
@@ -68,7 +68,7 @@ const App = () => {
     { path: '/signup', element: <PublicRoutes element={<Signup />} /> },
     { path: '/messages/:id', element: <PrivateRoutes element={<GameArea />} /> },
     { path: '/', element: <PrivateRoutes element={<HomeRedirect />} /> },
-    // { path: '/model', element: <PrivateRoutes element={<ThreeScene />} /> },
+    { path: '/model', element: <PrivateRoutes element={<ThreeScene />} /> },
     { path: '/test', element: <PrivateRoutes element={<Test />} /> },
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
     { path: '/players', element: <PrivateRoutes element={<Players />} /> },

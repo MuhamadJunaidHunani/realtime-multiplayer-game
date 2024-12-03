@@ -1,13 +1,20 @@
 import React from "react";
-import carImage from "../../../../../Downloads/Screenshot_2024-12-01_014756-removebg-preview.png";
+import carImage1 from "../assets/images/car1.png";
+import carImage2 from "../assets/images/car2.png";
+import carImage3 from "../assets/images/car3.png";
 
-const PlayerCar = ({ playerCarRef }) => {
+const PlayerCar = ({ playerCarRef , carView }) => {
+  const carImage = {
+    "left":carImage2,
+    "center":carImage1,
+    "right":carImage3,
+  }
   return (
     <div
     id="playerCar"
     ref={playerCarRef}
     style={{
-      background: `url(${carImage})`,
+      backgroundImage: `url(${carImage[carView]})`,
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
