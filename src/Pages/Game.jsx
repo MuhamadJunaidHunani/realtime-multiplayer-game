@@ -3,11 +3,13 @@ import { socket, joinRoom, moveCar } from "../services/socket";
 import PlayerCar from "../Components/PlayerCar";
 import mount from "../assets/images/360_F_248730987_xRhUf0X7eMmK8cb1oo9gE64kpZrO1aSoa.jpg";
 import smog from "../assets/images/b.png";
+import smog1 from "../assets/images/q.gif";
 import Road from "../Components/Road";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Trees from "../Components/Trees";
 import CarControls from "../Components/CarControls";
+import OpponentCar from "../Components/OpponentCar";
 
 const Game = () => {
   const { roomId } = useParams();
@@ -21,15 +23,18 @@ const Game = () => {
   const treeRef1 = useRef(null);
   const treeRef2 = useRef(null);
   const playerCarRef = useRef(null);
+  const opponentCarRef = useRef(null);
   const roadPosition = useRef(0);
   const roadSpeedRef = useRef(3);
   const keysRef = useRef({});
   const lastTimestampRef = useRef(performance.now());
-  const car = useRef({ x: 300, y: 400, moveSpeed: 5 });
+  const playerCarPos = useRef({ x: (window.innerWidth/5), y: 400, moveSpeed: 5 });
+  const opponentCarPos = useRef({ x: (window.innerWidth/5)*3, y: 400, moveSpeed: 5 });
   const [roadSpeed, setRoadSpeed] = useState(3);
   const [players, setPlayers] = useState([]);
   const [opponent, setOpponent] = useState({});
   const [carView, setCarView] = useState("center");
+  const [opponentCarView, setOpponentCarView] = useState("center");
   const [distance, setDistance] = useState(0);
   const distanceRef = useRef(0);
 
@@ -62,10 +67,9 @@ const Game = () => {
     }
   };
 
-
   const adjustMovement = () => {
     const { ArrowLeft, ArrowRight, ArrowUp, ArrowDown } = keysRef.current;
-    const carState = car.current;
+    const carState = playerCarPos.current;
     const roadSpeed = roadSpeedRef.current;
     const screenWidth = window.innerWidth;
     const moveBounds = { left: 0, right: screenWidth - 200 };
@@ -88,8 +92,14 @@ const Game = () => {
         carState.x > viewThresholds.right ? "right" :
           carState.x < viewThresholds.left ? "left" :
             "center";
+            const newOpponentCarView =
+            opponentCarPos.current.x > viewThresholds.right ? "right" :
+            opponentCarPos.current.x < viewThresholds.left ? "left" :
+                "center";
       setCarView((prevView) => (prevView !== newCarView ? newCarView : prevView));
+      setOpponentCarView((prevView) => (prevView !== newOpponentCarView ? newOpponentCarView : prevView));
       playerCarRef.current.style.transform = `translateX(${carState.x}px)`;
+      opponentCarRef.current.style.transform = `translateX(${opponentCarPos.current.x}px)`;
     }
   };
 
@@ -166,16 +176,17 @@ const Game = () => {
     >
       <div
         style={{
-          backgroundImage: `linear-gradient(0deg, #7D7D7D 0%, rgba(255,255,255,0) 100%), url(${smog})`,
-          backgroundPosition: "0% 33px, center",
-          backgroundRepeat: "no-repeat, no-repeat",
-          backgroundSize: "100% 30%, cover",
+          backgroundImage: ` url(${smog1})`,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
         }}
         className="w-[100px] overflow-hidden h-[45px] z-[10000] absolute top-[50%] left-[46.4%] pointer-events-none"
       ></div>
       <Road roadRef={roadRef} />
       <Trees treeRef1={treeRef1} treeRef2={treeRef2} />
       <PlayerCar playerCarRef={playerCarRef} carView={carView} />
+      <OpponentCar OpponentCarRef={opponentCarRef} carView={opponentCarView} />
       <CarControls roadSpeed={roadSpeed} distance={distance} />
     </div>
   );

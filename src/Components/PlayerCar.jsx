@@ -14,16 +14,14 @@ const PlayerCar = ({ playerCarRef , carView }) => {
     id="playerCar"
     ref={playerCarRef}
     style={{
-      backgroundImage: `url(${carImage[carView]})`,
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
       position: "absolute",
       width: "200px",
-      height: "150px",
+      height: "auto",
       bottom: '10px'
     }}
-  ></div>
+  >
+    <img src={carImage[carView]} alt="your car" className="object-contain" />
+  </div>
   );
 };
 

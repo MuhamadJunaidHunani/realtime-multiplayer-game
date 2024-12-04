@@ -3,7 +3,7 @@ import carImage1 from "../assets/images/car1.png";
 import carImage2 from "../assets/images/car2.png";
 import carImage3 from "../assets/images/car3.png";
 
-const OpponentCar = ({ playerCarRef , carView }) => {
+const OpponentCar = ({ OpponentCarRef , carView }) => {
   const carImage = {
     "left":carImage2,
     "center":carImage1,
@@ -12,7 +12,7 @@ const OpponentCar = ({ playerCarRef , carView }) => {
   return (
     <div
     id="playerCar"
-    ref={playerCarRef}
+    ref={OpponentCarRef}
     style={{
       backgroundImage: `url(${carImage[carView]})`,
       backgroundRepeat: 'no-repeat',
