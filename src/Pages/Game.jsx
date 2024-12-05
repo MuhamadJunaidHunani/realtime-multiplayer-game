@@ -76,14 +76,14 @@ const Game = () => {
     }
   };
 
-  let zPosition = 0; // Start at the bottom of the road
+  let zPosition = 0; 
   let scale = 1;
 
-  // Function to move the car "forward" (towards the top of the road)
+  
   function okh() {
-    if (distanceRef.current - opponentdistanceRef.current < -3) { // Limit the movement to the end of the road
-      zPosition = distanceRef.current - opponentdistanceRef.current; // Move forward in the Z-axis
-      scale -= 0.015; // Reduce size to simulate perspective
+    if (distanceRef.current - opponentdistanceRef.current < -3) { 
+      zPosition = distanceRef.current - opponentdistanceRef.current; 
+      scale -= 0.015; 
       opponentCarRef.current.style.transform = `translateY(0px) translateZ(${zPosition}px) scale(${scale})`;
     }
   }

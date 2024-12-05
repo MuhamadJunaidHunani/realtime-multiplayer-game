@@ -69,7 +69,6 @@ const App = () => {
     { path: '/messages/:id', element: <PrivateRoutes element={<GameArea />} /> },
     { path: '/', element: <PrivateRoutes element={<HomeRedirect />} /> },
     { path: '/model', element: <PrivateRoutes element={<ThreeScene />} /> },
-    // { path: '/test', element: <PrivateRoutes element={<Test />} /> },
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
     { path: '/players', element: <PrivateRoutes element={<Players />} /> },
     { path: '/game/:roomId', element: <PrivateRoutes element={<Game />} /> },
