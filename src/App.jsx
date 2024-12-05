@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import './App.css';
 import GameArea from "./Components/GameArea";
-import Test from "./Components/Test";
+// import Test from "./Components/Test";
 import PublicRoutes from "./AuthRouting/PublicRoutes";
 import PrivateRoutes from "./AuthRouting/PrivateRoutes";
 import Signup from "./Pages/Signup";
@@ -58,7 +58,7 @@ const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-      navigate('/test');
+      navigate('/game/DTWbZWztpHXDWMAnj8BlyUZeF742_oz32Ec9sAseMTluH9U2KJcSEYoT2');
     }, [navigate]);
 
     return null;
@@ -69,7 +69,7 @@ const App = () => {
     { path: '/messages/:id', element: <PrivateRoutes element={<GameArea />} /> },
     { path: '/', element: <PrivateRoutes element={<HomeRedirect />} /> },
     { path: '/model', element: <PrivateRoutes element={<ThreeScene />} /> },
-    { path: '/test', element: <PrivateRoutes element={<Test />} /> },
+    // { path: '/test', element: <PrivateRoutes element={<Test />} /> },
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
     { path: '/players', element: <PrivateRoutes element={<Players />} /> },
     { path: '/game/:roomId', element: <PrivateRoutes element={<Game />} /> },

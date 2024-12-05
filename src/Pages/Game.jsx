@@ -6,7 +6,7 @@ import smog from "../assets/images/b.png";
 import smog1 from "../assets/images/q.gif";
 import Road from "../Components/Road";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Trees from "../Components/Trees";
 import CarControls from "../Components/CarControls";
 import OpponentCar from "../Components/OpponentCar";
@@ -15,8 +15,6 @@ const Game = () => {
   const { roomId } = useParams();
 
   const { currentUser, currentUserLoading } = useSelector((state) => state.currentUser);
-  const [opponentCar, setOpponentCar] = useState({ x: 0, y: 0 });
-  const [keys, setKeys] = useState({});
   const animationRef = useRef();
   const gameAreaRef = useRef(null);
   const roadRef = useRef(null);
@@ -28,15 +26,26 @@ const Game = () => {
   const roadSpeedRef = useRef(3);
   const keysRef = useRef({});
   const lastTimestampRef = useRef(performance.now());
-  const playerCarPos = useRef({ x: (window.innerWidth / 5), y: 400, moveSpeed: 5 });
-  const opponentCarPos = useRef({ x: (window.innerWidth / 5) * 3, y: 400, moveSpeed: 5 });
+  const playerCarPos = useRef({ x: 0, y: 400, moveSpeed: 5 });
+  const opponentCarPos = useRef({ x: 0, y: 400, moveSpeed: 5 });
   const [roadSpeed, setRoadSpeed] = useState(3);
-  const [players, setPlayers] = useState([]);
+  const [allPlayers, setAllPlayers] = useState([]);
   const [opponent, setOpponent] = useState({});
   const [carView, setCarView] = useState("center");
   const [opponentCarView, setOpponentCarView] = useState("center");
   const [distance, setDistance] = useState(0);
   const distanceRef = useRef(0);
+  const [opponentdistance, setopponentDistance] = useState(0);
+  const opponentdistanceRef = useRef(0);
+  const navigate = useNavigate();
+
+
+  const playersIds = roomId.split('_');
+  if(!playersIds.includes(currentUser.uid)){
+    navigate('/players');
+
+  }
+  
 
 
 
@@ -72,8 +81,8 @@ const Game = () => {
 
   // Function to move the car "forward" (towards the top of the road)
   function okh() {
-    if (zPosition > -3000 && keysRef.current.ArrowUp) { // Limit the movement to the end of the road
-      zPosition -= 50; // Move forward in the Z-axis
+    if (distanceRef.current - opponentdistanceRef.current < -3) { // Limit the movement to the end of the road
+      zPosition = distanceRef.current - opponentdistanceRef.current; // Move forward in the Z-axis
       scale -= 0.015; // Reduce size to simulate perspective
       opponentCarRef.current.style.transform = `translateY(0px) translateZ(${zPosition}px) scale(${scale})`;
     }
@@ -85,7 +94,7 @@ const Game = () => {
     const roadSpeed = roadSpeedRef.current;
     const screenWidth = window.innerWidth;
     const moveBounds = { left: 0, right: screenWidth - 200 };
-    const viewThresholds = { left: screenWidth / 4, right: (screenWidth / 4) * 2.5 };
+    const viewThresholds = { left: window.innerWidth / 6, right: (window.innerWidth / 6) *4 };
 
     if (ArrowLeft && carState.x > moveBounds.left) carState.x -= carState.moveSpeed;
     if (ArrowRight && carState.x < moveBounds.right) carState.x += carState.moveSpeed;
@@ -111,7 +120,9 @@ const Game = () => {
       setCarView((prevView) => (prevView !== newCarView ? newCarView : prevView));
       setOpponentCarView((prevView) => (prevView !== newOpponentCarView ? newOpponentCarView : prevView));
       playerCarRef.current.style.transform = `translateX(${carState.x}px)`;
-      // opponentCarRef.current.style.transform = `translateX(${opponentCarPos.current.x}px)`;
+      console.log(opponentCarPos.current.x , "⚱️⚱️⚱️");
+      
+      opponentCarRef.current.style.transform = `translateX(${opponentCarPos.current.x}px)`;
     }
   };
 
@@ -149,14 +160,33 @@ const Game = () => {
       joinRoom(roomId, currentUser);
 
       socket.on("player-joined", ({ players }) => {
+        console.log(players);
+        
         const opponentData = players.find((p) => p?.id !== socket?.id);
-        setPlayers(players);
-        players.length === 1 ? playerCarPos.current.x = window.innerWidth / 5 : players.length === 2 ? playerCarPos.current.x = window.innerWidth / 5 : ''
+        setAllPlayers((prev) => {
+          const isAlreadyIncluded = prev?.some((player) => player?.id === socket?.id);
+
+          if (!isAlreadyIncluded) {
+            if (players.length === 1) {
+              playerCarPos.current.x = window.innerWidth / 6;
+            } else if (players.length === 2) {
+              playerCarPos.current.x = (window.innerWidth / 6) * 4;
+            }
+          }
+
+          return players;
+        });
+
         setOpponent(opponentData || {});
       });
 
-      socket.on("car-update", ({ id, car }) => {
-        if (id !== socket.id) setOpponentCar(car);
+      socket.on("car-update", ({ id, car , distance }) => {
+        if (id !== socket.id){
+        opponentCarPos.current = { x: car.x, y: car.y, moveSpeed: 5 };
+        opponentdistanceRef.current = distance;
+        console.log(car.x , opponentCarPos.current.x);
+        }
+        
       });
 
       socket.on("winner", (winnerId) => {

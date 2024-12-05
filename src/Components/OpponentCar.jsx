@@ -18,9 +18,9 @@ const OpponentCar = ({ OpponentCarRef , carView }) => {
       width: "200px",
       height: "100px",
       top: "calc(100% - 150px)",
-      left: "50%",
       transform: "translateX(150%) translateY(0px) translateZ(0px) scale(1)",
       transformOrigin: "center",
+      backgroundColor:'red',
       transition: "transform 0.3s ease",
     }}
   >
