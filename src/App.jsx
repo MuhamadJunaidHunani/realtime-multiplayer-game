@@ -74,12 +74,6 @@ const App = () => {
     { path: '/game/:roomId', element: <PrivateRoutes element={<Game />} /> },
     { path: '/CarRace', element: <PrivateRoutes element={<CarRace />} /> },
   ]);
-
-
-  {/* <div className="mainCont">
-  <Controls speed={speed} distance={distance} />
-  <GameArea setSpeed={setSpeed} setDistance={setDistance} />
-</div> */}
   return (
     <>
       {/* <Hearder /> */}
