@@ -28,8 +28,8 @@ const Game = () => {
   const roadSpeedRef = useRef(3);
   const keysRef = useRef({});
   const lastTimestampRef = useRef(performance.now());
-  const playerCarPos = useRef({ x: (window.innerWidth/5), y: 400, moveSpeed: 5 });
-  const opponentCarPos = useRef({ x: (window.innerWidth/5)*3, y: 400, moveSpeed: 5 });
+  const playerCarPos = useRef({ x: (window.innerWidth / 5), y: 400, moveSpeed: 5 });
+  const opponentCarPos = useRef({ x: (window.innerWidth / 5) * 3, y: 400, moveSpeed: 5 });
   const [roadSpeed, setRoadSpeed] = useState(3);
   const [players, setPlayers] = useState([]);
   const [opponent, setOpponent] = useState({});
@@ -67,6 +67,18 @@ const Game = () => {
     }
   };
 
+  let zPosition = 0; // Start at the bottom of the road
+  let scale = 1;
+
+  // Function to move the car "forward" (towards the top of the road)
+  function okh() {
+    if (zPosition > -3000 && keysRef.current.ArrowUp) { // Limit the movement to the end of the road
+      zPosition -= 50; // Move forward in the Z-axis
+      scale -= 0.015; // Reduce size to simulate perspective
+      opponentCarRef.current.style.transform = `translateY(0px) translateZ(${zPosition}px) scale(${scale})`;
+    }
+  }
+
   const adjustMovement = () => {
     const { ArrowLeft, ArrowRight, ArrowUp, ArrowDown } = keysRef.current;
     const carState = playerCarPos.current;
@@ -85,21 +97,21 @@ const Game = () => {
       roadSpeedRef.current -= 0.1;
       setRoadSpeed(roadSpeedRef.current);
     }
-    
-    moveCar(roomId, distanceRef.current ,carState.x , carState.y);
+
+    moveCar(roomId, distanceRef.current, carState.x, carState.y);
     if (playerCarRef.current) {
       const newCarView =
         carState.x > viewThresholds.right ? "right" :
           carState.x < viewThresholds.left ? "left" :
             "center";
-            const newOpponentCarView =
-            opponentCarPos.current.x > viewThresholds.right ? "right" :
-            opponentCarPos.current.x < viewThresholds.left ? "left" :
-                "center";
+      const newOpponentCarView =
+        opponentCarPos.current.x > viewThresholds.right ? "right" :
+          opponentCarPos.current.x < viewThresholds.left ? "left" :
+            "center";
       setCarView((prevView) => (prevView !== newCarView ? newCarView : prevView));
       setOpponentCarView((prevView) => (prevView !== newOpponentCarView ? newOpponentCarView : prevView));
       playerCarRef.current.style.transform = `translateX(${carState.x}px)`;
-      opponentCarRef.current.style.transform = `translateX(${opponentCarPos.current.x}px)`;
+      // opponentCarRef.current.style.transform = `translateX(${opponentCarPos.current.x}px)`;
     }
   };
 
@@ -122,6 +134,7 @@ const Game = () => {
     adjustMovement();
     handleSpeedDecay();
     updateRoad();
+    okh()
     animationRef.current = requestAnimationFrame(gameLoop);
   };
 
@@ -138,6 +151,7 @@ const Game = () => {
       socket.on("player-joined", ({ players }) => {
         const opponentData = players.find((p) => p?.id !== socket?.id);
         setPlayers(players);
+        players.length === 1 ? playerCarPos.current.x = window.innerWidth / 5 : players.length === 2 ? playerCarPos.current.x = window.innerWidth / 5 : ''
         setOpponent(opponentData || {});
       });
 

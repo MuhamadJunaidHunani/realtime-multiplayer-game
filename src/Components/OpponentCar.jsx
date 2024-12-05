@@ -14,16 +14,18 @@ const OpponentCar = ({ OpponentCarRef , carView }) => {
     id="playerCar"
     ref={OpponentCarRef}
     style={{
-      backgroundImage: `url(${carImage[carView]})`,
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
       position: "absolute",
       width: "200px",
-      height: "150px",
-      bottom: '10px'
+      height: "100px",
+      top: "calc(100% - 150px)",
+      left: "50%",
+      transform: "translateX(150%) translateY(0px) translateZ(0px) scale(1)",
+      transformOrigin: "center",
+      transition: "transform 0.3s ease",
     }}
-  ></div>
+  >
+    <img src={carImage[carView]} alt="your car" className="object-contain" />
+  </div>
   );
 };
 

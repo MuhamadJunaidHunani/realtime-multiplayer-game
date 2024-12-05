@@ -14,10 +14,11 @@ const PlayerCar = ({ playerCarRef , carView }) => {
     id="playerCar"
     ref={playerCarRef}
     style={{
-      position: "absolute",
       width: "200px",
       height: "auto",
-      bottom: '10px'
+      transformStyle:'flat',
+      position:'absolute',
+      bottom:'0',
     }}
   >
     <img src={carImage[carView]} alt="your car" className="object-contain" />

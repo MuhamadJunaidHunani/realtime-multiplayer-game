@@ -6,8 +6,8 @@ export const socket = io(SOCKET_URL, {
   transports: ["websocket"],
 });
 
-export const joinRoom = (roomId, playerName) => {
-  socket.emit("join-room", { roomId, playerName });
+export const joinRoom = (roomId, player ,playerCarPos) => {
+  socket.emit("join-room", { roomId, player });
 };
 
 export const moveCar = (roomId, distance, x, y) => {
