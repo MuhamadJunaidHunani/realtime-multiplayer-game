@@ -42,7 +42,7 @@ const Game = () => {
 
   const playersIds = roomId.split('_');
   if(!playersIds.includes(currentUser.uid)){
-    navigate('/players');
+    // navigate('/players');
 
   }
   
