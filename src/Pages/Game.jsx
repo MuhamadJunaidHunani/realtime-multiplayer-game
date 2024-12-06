@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { socket, joinRoom, moveCar } from "../services/socket";
+import { socket, joinRoom, moveCar } from "../Services/socket";
 import PlayerCar from "../Components/PlayerCar";
 import mount from "../assets/images/360_F_248730987_xRhUf0X7eMmK8cb1oo9gE64kpZrO1aSoa.jpg";
 import smog from "../assets/images/b.png";
@@ -34,6 +34,7 @@ const Game = () => {
   const [carView, setCarView] = useState("center");
   const [opponentCarView, setOpponentCarView] = useState("center");
   const [distance, setDistance] = useState(0);
+  const [carName, setCarName] = useState(null);
   const distanceRef = useRef(0);
   const [opponentdistance, setopponentDistance] = useState(0);
   const opponentdistanceRef = useRef(0);
@@ -41,11 +42,11 @@ const Game = () => {
 
 
   const playersIds = roomId.split('_');
-  if(!playersIds.includes(currentUser.uid)){
+  if (!playersIds.includes(currentUser.uid)) {
     // navigate('/players');
 
   }
-  
+
 
 
 
@@ -76,15 +77,13 @@ const Game = () => {
     }
   };
 
-  let zPosition = 0; 
+  let zPosition = 0;
   let scale = 1;
 
-  
+
   function okh() {
-    if (distanceRef.current - opponentdistanceRef.current < -3) { 
-      zPosition = distanceRef.current - opponentdistanceRef.current; 
-      scale -= 0.015; 
-      opponentCarRef.current.style.transform = `translateY(0px) translateZ(${zPosition}px) scale(${scale})`;
+    if (true) {
+      // scale -= 0.015; 
     }
   }
 
@@ -94,7 +93,7 @@ const Game = () => {
     const roadSpeed = roadSpeedRef.current;
     const screenWidth = window.innerWidth;
     const moveBounds = { left: 0, right: screenWidth - 200 };
-    const viewThresholds = { left: window.innerWidth / 6, right: (window.innerWidth / 6) *4 };
+    const viewThresholds = { left: window.innerWidth / 6, right: (window.innerWidth / 6) * 4 };
 
     if (ArrowLeft && carState.x > moveBounds.left) carState.x -= carState.moveSpeed;
     if (ArrowRight && carState.x < moveBounds.right) carState.x += carState.moveSpeed;
@@ -120,9 +119,10 @@ const Game = () => {
       setCarView((prevView) => (prevView !== newCarView ? newCarView : prevView));
       setOpponentCarView((prevView) => (prevView !== newOpponentCarView ? newOpponentCarView : prevView));
       playerCarRef.current.style.transform = `translateX(${carState.x}px)`;
-      console.log(opponentCarPos.current.x , "⚱️⚱️⚱️");
-      
-      opponentCarRef.current.style.transform = `translateX(${opponentCarPos.current.x}px)`;
+      zPosition = (distanceRef.current - opponentdistanceRef.current) * 50;
+      scale = zPosition <= -3500 ? 0 : Math.min(Math.abs(((zPosition / -3500) * 100) - 100), 100)
+      opponentCarRef.current.style.transform = `translateX(${opponentCarPos.current.x}px) translateY(0px) translateZ(${zPosition}px) scale(${scale}%)`;
+
     }
   };
 
@@ -158,35 +158,32 @@ const Game = () => {
   useEffect(() => {
     if (currentUser && roomId) {
       joinRoom(roomId, currentUser);
-
       socket.on("player-joined", ({ players }) => {
-        console.log(players);
-        
         const opponentData = players.find((p) => p?.id !== socket?.id);
+        const MyData = players.find((p) => p?.id === socket?.id);
         setAllPlayers((prev) => {
           const isAlreadyIncluded = prev?.some((player) => player?.id === socket?.id);
-
           if (!isAlreadyIncluded) {
-            if (players.length === 1) {
+            setCarName(MyData?.playerNumber)
+            if (MyData?.playerNumber === "one") {
               playerCarPos.current.x = window.innerWidth / 6;
-            } else if (players.length === 2) {
+            } else if (MyData?.playerNumber === "two") {
               playerCarPos.current.x = (window.innerWidth / 6) * 4;
             }
           }
 
+
           return players;
         });
-
         setOpponent(opponentData || {});
       });
 
-      socket.on("car-update", ({ id, car , distance }) => {
-        if (id !== socket.id){
-        opponentCarPos.current = { x: car.x, y: car.y, moveSpeed: 5 };
-        opponentdistanceRef.current = distance;
-        console.log(car.x , opponentCarPos.current.x);
+      socket.on("car-update", ({ id, car, distance }) => {
+        if (id !== socket.id) {
+          opponentCarPos.current = { x: car.x, y: car.y, moveSpeed: 5 };
+          opponentdistanceRef.current = distance;
         }
-        
+
       });
 
       socket.on("winner", (winnerId) => {
@@ -220,7 +217,7 @@ const Game = () => {
     >
       <div
         style={{
-          backgroundImage: ` url(${smog1})`,
+          backgroundImage: ` url(${smog})`,
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
@@ -229,8 +226,8 @@ const Game = () => {
       ></div>
       <Road roadRef={roadRef} />
       <Trees treeRef1={treeRef1} treeRef2={treeRef2} />
-      <PlayerCar playerCarRef={playerCarRef} carView={carView} />
-      <OpponentCar OpponentCarRef={opponentCarRef} carView={opponentCarView} />
+      <PlayerCar playerCarRef={playerCarRef} carView={carView} carName={carName} />
+      <OpponentCar OpponentCarRef={opponentCarRef} carView={opponentCarView} carName={carName} />
       <CarControls roadSpeed={roadSpeed} distance={distance} />
     </div>
   );

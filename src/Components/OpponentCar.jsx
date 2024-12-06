@@ -1,13 +1,18 @@
 import React from "react";
-import carImage1 from "../assets/images/car21.png";
-import carImage2 from "../assets/images/car22.png";
-import carImage3 from "../assets/images/car23.png";
+import carImage1 from "../assets/images/car1.png";
+import carImage2 from "../assets/images/car2.png";
+import carImage3 from "../assets/images/car3.png";
+import carImage21 from "../assets/images/car21.png";
+import carImage22 from "../assets/images/car22.png";
+import carImage23 from "../assets/images/car23.png";
 
-const OpponentCar = ({ OpponentCarRef , carView }) => {
+const OpponentCar = ({ OpponentCarRef , carView , carName }) => {
+  console.log("opp" , carName);
+  
   const carImage = {
-    "left":carImage2,
-    "center":carImage1,
-    "right":carImage3,
+    "left":carName === "two"? carImage2: carImage22,
+    "center":carName === "two"? carImage1: carImage21,
+    "right":carName === "two"? carImage3: carImage23,
   }
   return (
     <div
@@ -20,7 +25,6 @@ const OpponentCar = ({ OpponentCarRef , carView }) => {
       top: "calc(100% - 150px)",
       transform: "translateX(150%) translateY(0px) translateZ(0px) scale(1)",
       transformOrigin: "center",
-      backgroundColor:'red',
       transition: "transform 0.3s ease",
     }}
   >
