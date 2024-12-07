@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../Firebase/Firebase';
+import { signOut } from 'firebase/auth';
 
 const Header = () => {
   const { currentUser } = useSelector((state) => state.currentUser);

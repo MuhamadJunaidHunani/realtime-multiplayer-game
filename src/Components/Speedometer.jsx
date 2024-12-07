@@ -54,11 +54,11 @@ const Speedometer = ({ currentSpeed,distance , opponentDistance , maxSpeed = 300
         </div>
         <div className="flex flex-col gap-[40px] p-[20px] pr-[60px] items-end">
             <div className="w-[400px] flex justify-end relative border-b-2 h-[20px] border-black">
-                <div style={{left:`${(distance/600)*100}%`}} className="absolute w-[35px] h-[20px] rounded-sm text-[12px] font-semibold text-[white] text-center bg-[#0d0d0d]">YOU</div>
+                <div style={{left:`${(distance/500)*100}%`}} className="absolute w-[35px] h-[20px] rounded-sm text-[12px] font-semibold text-[white] text-center bg-[#0d0d0d]">YOU</div>
                 <img src={winnerFlag} alt="winnerFlag" className="w-[35px] h-[40px] translate-x-[60px] translate-y-[-15px]" />
             </div>
             <div className="w-[400px] flex justify-end relative border-b-2 h-[20px] border-black">
-                <div style={{left:`${(opponentDistance/600)*100}%`}} className={`absolute w-[35px] h-[20px] rounded-sm text-[12px] font-semibold text-[white] text-center bg-[#ff952b]`}>OPP</div>
+                <div style={{left:`${(opponentDistance/500)*100}%`}} className={`absolute w-[35px] h-[20px] rounded-sm text-[12px] font-semibold text-[white] text-center bg-[#ff952b]`}>OPP</div>
                 <img src={winnerFlag} alt="winnerFlag" className="w-[35px] h-[40px] translate-x-[60px] translate-y-[-15px]" />
             </div>
         </div>

@@ -64,7 +64,7 @@ const Leaderboard = () => {
 
                     <span className="text-[white] font-medium text-[16px]  ">Win: {player.win}</span>
                     <span className="text-[white] font-medium text-[16px]  ">Lose: {player.lose}</span>
-                    <span className="text-[white] font-medium text-[16px]  ">Win Percentage: {winPercentage}%</span>
+                    <span className="text-[white] font-medium text-[16px]  ">Win Percentage: {winPercentage.toFixed()}%</span>
                   </div>
                 </li>
               )
