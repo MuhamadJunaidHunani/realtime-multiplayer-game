@@ -8,7 +8,6 @@ const ChallengeModal = ({ challenger, opponent, setChallengedPlayer }) => {
 
   useEffect(() => {
     const unsubscribe = getChallenges(opponent.id, (data) => {
-      console.log(data, "<<<==>>>");
       const currentChallenge = data?.find((data) => data.id === challenger.uid)
       setStatus(currentChallenge.status)
       currentChallenge.status !== "pending" ? setChallengedPlayer(null):''

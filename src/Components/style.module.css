@@ -1,0 +1,27 @@
+.svgContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #b7abab00;
+    opacity: 0.9;
+    height: 266px;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    transform: scale(0.5);
+    transform-origin: top left;
+  }
+  
+  /* .meterBgBar {
+    animation: dash 4s linear infinite;
+  } */
+  
+  .speed {
+    color: rgb(255, 255, 255);
+    font-size: 36px;
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+  

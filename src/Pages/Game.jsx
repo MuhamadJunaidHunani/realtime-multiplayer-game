@@ -3,18 +3,20 @@ import { socket, joinRoom, moveCar } from "../Services/socket";
 import PlayerCar from "../Components/PlayerCar";
 import mount from "../assets/images/360_F_248730987_xRhUf0X7eMmK8cb1oo9gE64kpZrO1aSoa.jpg";
 import smog from "../assets/images/b.png";
-import smog1 from "../assets/images/q.gif";
 import Road from "../Components/Road";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import Trees from "../Components/Trees";
 import CarControls from "../Components/CarControls";
 import OpponentCar from "../Components/OpponentCar";
+import EnemyCar from "../Components/EnemyCar";
+import Speedometer from "../Components/Speedometer";
+import GameWonModal from "../Components/GameWonModal";
+import GameLossModal from "../Components/GameLossModal";
 
 const Game = () => {
   const { roomId } = useParams();
-
-  const { currentUser, currentUserLoading } = useSelector((state) => state.currentUser);
+  const { currentUser } = useSelector((state) => state.currentUser);
   const animationRef = useRef();
   const gameAreaRef = useRef(null);
   const roadRef = useRef(null);
@@ -26,36 +28,47 @@ const Game = () => {
   const roadSpeedRef = useRef(3);
   const keysRef = useRef({});
   const lastTimestampRef = useRef(performance.now());
-  const playerCarPos = useRef({ x: 0, y: 400, moveSpeed: 5 });
-  const opponentCarPos = useRef({ x: 0, y: 400, moveSpeed: 5 });
+  const playerCarPos = useRef({ x: 0, y: 400, moveSpeed: 8 });
+  const opponentCarPos = useRef({ x: 0, y: 400, moveSpeed: 8 });
   const [roadSpeed, setRoadSpeed] = useState(3);
   const [allPlayers, setAllPlayers] = useState([]);
+  const [Winner, setWinner] = useState(null);
   const [opponent, setOpponent] = useState({});
   const [carView, setCarView] = useState("center");
   const [opponentCarView, setOpponentCarView] = useState("center");
   const [distance, setDistance] = useState(0);
+  const [keys, setKeys] = useState({});
   const [carName, setCarName] = useState(null);
   const distanceRef = useRef(0);
   const [opponentdistance, setopponentDistance] = useState(0);
   const opponentdistanceRef = useRef(0);
   const navigate = useNavigate();
-
+  const [enemyCars, setEnemyCars] = useState([]);
+  const enemyCarRef = useRef();
+  let zPosition = 0;
+  let scale = 1;
+  const afterWin = ()=>{
+    navigate("/players")
+  }
+  if(Winner === "you"){
+    return <GameWonModal onClose={afterWin}/>
+  }else if(Winner === "opp"){
+    return <GameLossModal onClose={afterWin}/>
+  }
 
   const playersIds = roomId.split('_');
   if (!playersIds.includes(currentUser.uid)) {
     // navigate('/players');
-
   }
-
-
-
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       keysRef.current[e.key] = true;
+      setKeys(keysRef.current)
     };
     const handleKeyUp = (e) => {
       keysRef.current[e.key] = false;
+      setKeys(keysRef.current)
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -72,20 +85,9 @@ const Game = () => {
     if (roadRef.current) {
       roadRef.current.style.backgroundPositionY = `${roadPosition.current}px`;
       treeRef1.current.style.backgroundPositionX = `-${roadPosition.current}px`;
-      treeRef2.current.style.backgroundPositionX = `-${roadPosition.current + 200
-        }px`;
+      treeRef2.current.style.backgroundPositionX = `-${roadPosition.current + 200}px`;
     }
   };
-
-  let zPosition = 0;
-  let scale = 1;
-
-
-  function okh() {
-    if (true) {
-      // scale -= 0.015; 
-    }
-  }
 
   const adjustMovement = () => {
     const { ArrowLeft, ArrowRight, ArrowUp, ArrowDown } = keysRef.current;
@@ -138,6 +140,28 @@ const Game = () => {
     setDistance(distanceRef.current);
   };
 
+  const spawnCar = () => {
+    setEnemyCars((prevCars) =>
+      prevCars.length >= 1
+        ? prevCars
+        : [...prevCars, { z: 500, scale: 0, speed: 5 }]
+    );
+  };
+
+  const updateCars = () => {
+    setEnemyCars((prevCars) =>
+      prevCars
+        .map((car) => {
+          const newZ = car.z + (roadSpeedRef.current / 10) + 1;
+          const newScale = Math.min(0.3, car.scale + 0.01);
+          enemyCarRef.current.style.transform = `translateY(${0}px) translateZ(${newZ}px) scale(${newScale})`;
+
+          return newZ < 1000 ? { ...car, z: newZ, scale: newScale } : null;
+        })
+        .filter(Boolean)
+    );
+  };
+
   const gameLoop = (currentTimestamp) => {
     const deltaTime = (currentTimestamp - lastTimestampRef.current) / 1000;
     lastTimestampRef.current = currentTimestamp;
@@ -145,9 +169,17 @@ const Game = () => {
     adjustMovement();
     handleSpeedDecay();
     updateRoad();
-    okh()
+    updateCars()
+    const abc = Math.random()
+    if (abc < 0.009 && abc > 0.008 && roadSpeedRef.current > 2) {
+      spawnCar()
+    }
+
     animationRef.current = requestAnimationFrame(gameLoop);
   };
+
+  
+
 
   useEffect(() => {
     animationRef.current = requestAnimationFrame(gameLoop);
@@ -171,8 +203,6 @@ const Game = () => {
               playerCarPos.current.x = (window.innerWidth / 6) * 4;
             }
           }
-
-
           return players;
         });
         setOpponent(opponentData || {});
@@ -182,13 +212,18 @@ const Game = () => {
         if (id !== socket.id) {
           opponentCarPos.current = { x: car.x, y: car.y, moveSpeed: 5 };
           opponentdistanceRef.current = distance;
+          setopponentDistance(distance)
         }
 
       });
 
       socket.on("winner", (winnerId) => {
-        alert(winnerId === socket.id ? "You won!" : "Opponent won!");
-        window.location.href = "/";
+        if (winnerId === socket.id) {
+          setWinner("you")
+        } else {
+          setWinner("opp")
+        }
+        // window.location.href = "/";
       });
 
       return () => {
@@ -198,6 +233,9 @@ const Game = () => {
       };
     }
   }, [roomId, currentUser]);
+
+
+
 
   return (
     <div
@@ -224,11 +262,15 @@ const Game = () => {
         }}
         className="w-[100px] overflow-hidden h-[45px] z-[10000] absolute top-[50%] left-[46.4%] pointer-events-none"
       ></div>
+      <Speedometer currentSpeed={Math.round(roadSpeed * 10)} opponentDistance={opponentdistance} distance={distance} maxSpeed={300} />
       <Road roadRef={roadRef} />
       <Trees treeRef1={treeRef1} treeRef2={treeRef2} />
       <PlayerCar playerCarRef={playerCarRef} carView={carView} carName={carName} />
       <OpponentCar OpponentCarRef={opponentCarRef} carView={opponentCarView} carName={carName} />
-      <CarControls roadSpeed={roadSpeed} distance={distance} />
+      <CarControls roadSpeed={roadSpeed} keys={keys} />
+      {enemyCars.map((car, index) => (
+        <EnemyCar key={index} enemyCarRef={enemyCarRef} />
+      ))}
     </div>
   );
 };

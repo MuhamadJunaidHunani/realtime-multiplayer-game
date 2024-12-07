@@ -11,8 +11,6 @@ const players = [
 
 const Leaderboard = () => {
     const {users} = useSelector((state)=> state.users);
-    console.log(users , "llllllllllllll");
-    
   return (
 
     <div className="bg-blue-900 p-4 rounded-lg w-full max-w-md mx-auto">

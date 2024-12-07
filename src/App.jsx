@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
-import GameArea from "./Components/GameArea";
-// import Test from "./Components/Test";
+import React, { useEffect } from "react";
 import PublicRoutes from "./AuthRouting/PublicRoutes";
 import PrivateRoutes from "./AuthRouting/PrivateRoutes";
 import Signup from "./Pages/Signup";
 import Login from "./Pages/Login";
-import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import { createBrowserRouter, RouterProvider, useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
@@ -18,9 +16,7 @@ import { setUser, setUserLoading } from "./Redux/Slices/Users.slice";
 import Leaderboard from "./Pages/LeaderBoard";
 import Hearder from "./Components/Hearder";
 import Players from "./Pages/Players";
-import Game from "./Pages/Game";
-import CarRace from "./Pages/CarRace";
-import ThreeScene from "./Components/Model";
+import Game from './Pages/Game';
 
 const App = () => {
   const dispatch = useDispatch()
@@ -66,13 +62,10 @@ const App = () => {
   const router = createBrowserRouter([
     { path: '/login', element: <PublicRoutes element={<Login />} /> },
     { path: '/signup', element: <PublicRoutes element={<Signup />} /> },
-    { path: '/messages/:id', element: <PrivateRoutes element={<GameArea />} /> },
     { path: '/', element: <PrivateRoutes element={<HomeRedirect />} /> },
-    { path: '/model', element: <PrivateRoutes element={<ThreeScene />} /> },
     { path: '/leader-board', element: <PrivateRoutes element={<Leaderboard />} /> },
     { path: '/players', element: <PrivateRoutes element={<Players />} /> },
     { path: '/game/:roomId', element: <PrivateRoutes element={<Game />} /> },
-    { path: '/CarRace', element: <PrivateRoutes element={<CarRace />} /> },
   ]);
   return (
     <>

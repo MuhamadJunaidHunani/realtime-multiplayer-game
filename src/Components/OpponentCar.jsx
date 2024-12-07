@@ -7,8 +7,6 @@ import carImage22 from "../assets/images/car22.png";
 import carImage23 from "../assets/images/car23.png";
 
 const OpponentCar = ({ OpponentCarRef , carView , carName }) => {
-  console.log("opp" , carName);
-  
   const carImage = {
     "left":carName === "two"? carImage2: carImage22,
     "center":carName === "two"? carImage1: carImage21,

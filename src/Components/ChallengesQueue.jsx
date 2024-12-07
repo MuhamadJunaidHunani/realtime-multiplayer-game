@@ -15,7 +15,6 @@ const ChallengesQueue = ({ currentUser }) => {
   const handleAcceptChallenge = async (challengeId) => {
     await acceptChallenge(currentUser.uid, challengeId);
     const roomId = generateChallengeId(currentUser.uid , challengeId);
-    console.log(roomId);
     setRedirectRoomId(roomId); 
   };
 

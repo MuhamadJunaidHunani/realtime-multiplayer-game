@@ -23,10 +23,7 @@ const Players = () => {
 
     useEffect(() => {
         if (currentUser && challengedPlayer) {
-            console.log(challengedPlayer);
-            
             const unsubscribe = getChallenges(challengedPlayer.id, (data) => {
-                console.log(data, "<<<==>>>");
                 const currentChallenge = data?.find((data) => data.id === currentUser.uid)
                 setStatus(currentChallenge.status)
                 if (currentChallenge.status === "accepted") {
@@ -49,7 +46,6 @@ const Players = () => {
 
 
     if (status === 'accepted' && redirectRoomId) {
-        console.log(challengedPlayer);
         return <GameRedirect roomId={redirectRoomId} />;
     }
 
