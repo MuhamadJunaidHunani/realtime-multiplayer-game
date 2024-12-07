@@ -14,10 +14,10 @@ const CarControls = ({ keys }) => {
       <div className="flex gap-5">
         <img src={right} alt="accelerate" style={{
           filter: ArrowLeft && 'drop-shadow(0 2px 4px skyblue)'
-        }} className={`h-[50px] rotate-180 transition-all duration-100`} />
+        }} className={`h-[30px] rotate-180 transition-all duration-100`} />
         <img src={right} alt="accelerate" style={{
           filter: ArrowRight && 'drop-shadow(0 2px 4px skyblue)'
-        }} className={`h-[50px] transition-all duration-100`} />
+        }} className={`h-[30px] transition-all duration-100`} />
       </div>
       <div className="flex gap-8">
 

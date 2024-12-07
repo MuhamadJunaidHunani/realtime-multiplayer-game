@@ -1,5 +1,10 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import Header from '../Components/Header';
+import Loader from "../Components/Loader";
+import plyersBgImage from '../assets/images/playersBg.jpg'
+
+
 
 const players = [
   { id: 1, name: "Player 1", stars: 5, score: 2980 },
@@ -10,57 +15,65 @@ const players = [
 ];
 
 const Leaderboard = () => {
-    const {users} = useSelector((state)=> state.users);
-  return (
+  const { users, userLoading } = useSelector((state) => state.users);
+  if (userLoading) {
+    return <Loader />
+  }
 
-    <div className="bg-blue-900 p-4 rounded-lg w-full max-w-md mx-auto">
-      <h1 className="text-white text-center text-xl font-bold mb-4">Leaderboard</h1>
-      <div className="space-y-2">
-        {players.map((player, index) => (
-          <div
-            key={player.id}
-            className="flex items-center justify-between bg-blue-700 p-2 rounded-md text-white"
-          >
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 flex items-center justify-center bg-white rounded-full text-blue-900 font-bold">
-                {index + 1 <= 3 ? (
-                  <span>
-                    {index + 1 === 1
-                      ? "🥇"
-                      : index + 1 === 2
-                      ? "🥈"
-                      : "🥉"}
-                  </span>
-                ) : (
-                  <span>{index + 1}</span>
-                )}
-              </div>
-              <div>
-                <p>{player.name}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className={`w-4 h-4 ${
-                      i < player.stars ? "text-yellow-400" : "text-gray-500"
-                    }`}
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                  </svg>
-                ))}
-              </div>
-              <p>{player.score}</p>
-            </div>
-          </div>
-        ))}
+  const calculateWinningPercentage = (wins, losses) => {
+    if (wins === 0 && losses === 0) return 0;
+    return (wins / (wins + losses)) * 100;
+  };
+
+  const sortedUsers = [...users].sort((a, b) => {
+    const winPercentageA = calculateWinningPercentage(a.win, a.lose);
+    const winPercentageB = calculateWinningPercentage(b.win, b.lose);
+
+    return winPercentageB - winPercentageA;
+  });
+
+  return (
+    <div style={{ backgroundImage: `url(${plyersBgImage})` }} className={`bg-center bg-cover bg-no-repeat h-screen`}>
+      <div className='h-screen w-full bg-[#00000050] backdrop-blur-[10px]'>
+        <Header />
+        <div className="p-4 w-[100%] overflow-y-auto h-[calc(100vh-92px)] custom-scrollbar ">
+          <h2 className="text-3xl font-semibold text-center text-white mb-3">
+            Leader Boader
+          </h2>
+          <ul className="space-y-4">
+            {sortedUsers?.map((player, index) => {
+              const winPercentage = calculateWinningPercentage(player.win, player.lose);
+              return (
+                <li
+                  key={player.id}
+                  className="flex items-center justify-between px-4 py-3 bg-[#000000b1] border-2 border-[#c5bcbc] rounded-lg shadow-sm"
+                >
+                  <div className="flex items-center justify-between w-[100%]">
+
+                    <div className="flex items-center">
+                      <p className="text-[25px] text-[white] w-[50px] text-center">
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                      </p>
+                      <img
+                        src={player.profileImage || 'https://via.placeholder.com/40'}
+                        alt={`${player.name}'s avatar`}
+                        className="w-10 h-10 bg-[#4682B4] rounded-full mr-4"
+                      />
+                      <span className="text-[white] font-medium text-[16px] ">{player.name}</span>
+                    </div>
+
+                    <span className="text-[white] font-medium text-[16px]  ">Win: {player.win}</span>
+                    <span className="text-[white] font-medium text-[16px]  ">Lose: {player.lose}</span>
+                    <span className="text-[white] font-medium text-[16px]  ">Win Percentage: {winPercentage}%</span>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       </div>
     </div>
+
   );
 };
 

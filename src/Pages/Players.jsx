@@ -8,6 +8,8 @@ import { sendChallenge } from '../Firebase/SendChallenge';
 import ChallengesQueue from '../Components/ChallengesQueue';
 import { getChallenges } from '../Firebase/UpdateChallanges';
 import { generateChallengeId } from '../Firebase/generateConversationId';
+import plyersBgImage from '../assets/images/playersBg.jpg'
+import Header from '../Components/Header';
 
 const Players = () => {
     const { currentUser, currentUserLoading } = useSelector((state) => state.currentUser);
@@ -50,17 +52,24 @@ const Players = () => {
     }
 
     return (
-        <div>
+        <div style={{backgroundImage:`url(${plyersBgImage})`}} className={`bg-center bg-cover bg-no-repeat h-screen`}>
+            <div className='h-screen w-full bg-[#00000010]'>
+
+            <Header/>
+            <div className='flex bg-[#00000080] backdrop-blur-[15px]'>
+
             <PlayersList onChallenge={handleChallenge} challengedPlayer={challengedPlayer} users={users} currentUser={currentUser} />
             {challengedPlayer && (
                 <ChallengeModal
-                    challenger={currentUser}
+                challenger={currentUser}
                     opponent={challengedPlayer}
                     setChallengedPlayer={setChallengedPlayer}
                     status={status}
-                />
-            )}
-            <ChallengesQueue currentUser={currentUser} />
+                    />
+                )}
+            <ChallengesQueue currentUser={currentUser} users={users} />
+                </div>
+                </div>
         </div>
     );
 };

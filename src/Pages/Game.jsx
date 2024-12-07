@@ -13,6 +13,7 @@ import EnemyCar from "../Components/EnemyCar";
 import Speedometer from "../Components/Speedometer";
 import GameWonModal from "../Components/GameWonModal";
 import GameLossModal from "../Components/GameLossModal";
+import { updateUserStats } from "../Firebase/updateUserStats";
 
 const Game = () => {
   const { roomId } = useParams();
@@ -47,18 +48,14 @@ const Game = () => {
   const enemyCarRef = useRef();
   let zPosition = 0;
   let scale = 1;
-  const afterWin = ()=>{
+  const afterWin = () => {
     navigate("/players")
   }
-  if(Winner === "you"){
-    return <GameWonModal onClose={afterWin}/>
-  }else if(Winner === "opp"){
-    return <GameLossModal onClose={afterWin}/>
-  }
+
 
   const playersIds = roomId.split('_');
   if (!playersIds.includes(currentUser.uid)) {
-    // navigate('/players');
+    navigate('a/players');
   }
 
   useEffect(() => {
@@ -79,6 +76,66 @@ const Game = () => {
       window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
+
+  useEffect(() => {
+    animationRef.current = requestAnimationFrame(gameLoop);
+    return () => cancelAnimationFrame(animationRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (currentUser && roomId) {
+      joinRoom(roomId, currentUser);
+      socket.on("player-joined", ({ players }) => {
+        const opponentData = players.find((p) => p?.id !== socket?.id);
+        const MyData = players.find((p) => p?.id === socket?.id);
+        setAllPlayers((prev) => {
+          const isAlreadyIncluded = prev?.some((player) => player?.id === socket?.id);
+          if (!isAlreadyIncluded) {
+            setCarName(MyData?.playerNumber)
+            if (MyData?.playerNumber === "one") {
+              playerCarPos.current.x = window.innerWidth / 6;
+            } else if (MyData?.playerNumber === "two") {
+              playerCarPos.current.x = (window.innerWidth / 6) * 4;
+            }
+          }
+          return players;
+        });
+        setOpponent(opponentData || {});
+      });
+
+      socket.on("car-update", ({ id, car, distance }) => {
+        if (id !== socket.id) {
+          opponentCarPos.current = { x: car.x, y: car.y, moveSpeed: 5 };
+          opponentdistanceRef.current = distance;
+          setopponentDistance(distance)
+        }
+
+      });
+
+      socket.on("winner", (winnerId) => {
+        cancelAnimationFrame(animationRef.current)
+        if (winnerId === socket.id) {
+          setWinner("you")
+        } else {
+          setWinner("opp")
+        }
+      });
+
+      return () => {
+        socket.off("player-joined");
+        socket.off("car-update");
+        socket.off("winner");
+      };
+    }
+  }, [roomId, currentUser]);
+
+  if (Winner === "you") {
+    updateUserStats(currentUser.uid, 'win', 1)
+    return <GameWonModal onClose={afterWin} />
+  } else if (Winner === "opp") {
+    updateUserStats(currentUser.uid, 'lose', 1)
+    return <GameLossModal onClose={afterWin} />
+  }
 
   const updateRoad = () => {
     roadPosition.current += roadSpeedRef.current;
@@ -177,65 +234,6 @@ const Game = () => {
 
     animationRef.current = requestAnimationFrame(gameLoop);
   };
-
-  
-
-
-  useEffect(() => {
-    animationRef.current = requestAnimationFrame(gameLoop);
-    return () => cancelAnimationFrame(animationRef.current);
-  }, []);
-
-
-  useEffect(() => {
-    if (currentUser && roomId) {
-      joinRoom(roomId, currentUser);
-      socket.on("player-joined", ({ players }) => {
-        const opponentData = players.find((p) => p?.id !== socket?.id);
-        const MyData = players.find((p) => p?.id === socket?.id);
-        setAllPlayers((prev) => {
-          const isAlreadyIncluded = prev?.some((player) => player?.id === socket?.id);
-          if (!isAlreadyIncluded) {
-            setCarName(MyData?.playerNumber)
-            if (MyData?.playerNumber === "one") {
-              playerCarPos.current.x = window.innerWidth / 6;
-            } else if (MyData?.playerNumber === "two") {
-              playerCarPos.current.x = (window.innerWidth / 6) * 4;
-            }
-          }
-          return players;
-        });
-        setOpponent(opponentData || {});
-      });
-
-      socket.on("car-update", ({ id, car, distance }) => {
-        if (id !== socket.id) {
-          opponentCarPos.current = { x: car.x, y: car.y, moveSpeed: 5 };
-          opponentdistanceRef.current = distance;
-          setopponentDistance(distance)
-        }
-
-      });
-
-      socket.on("winner", (winnerId) => {
-        if (winnerId === socket.id) {
-          setWinner("you")
-        } else {
-          setWinner("opp")
-        }
-        // window.location.href = "/";
-      });
-
-      return () => {
-        socket.off("player-joined");
-        socket.off("car-update");
-        socket.off("winner");
-      };
-    }
-  }, [roomId, currentUser]);
-
-
-
 
   return (
     <div

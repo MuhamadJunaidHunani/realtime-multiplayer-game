@@ -14,7 +14,6 @@ import { useDispatch } from "react-redux";
 import { FetchUsers } from "./Firebase/FetchUsers";
 import { setUser, setUserLoading } from "./Redux/Slices/Users.slice";
 import Leaderboard from "./Pages/LeaderBoard";
-import Hearder from "./Components/Hearder";
 import Players from "./Pages/Players";
 import Game from './Pages/Game';
 
@@ -54,7 +53,7 @@ const App = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-      navigate('/game/DTWbZWztpHXDWMAnj8BlyUZeF742_oz32Ec9sAseMTluH9U2KJcSEYoT2');
+      navigate('/players');
     }, [navigate]);
 
     return null;
@@ -69,7 +68,6 @@ const App = () => {
   ]);
   return (
     <>
-      {/* <Hearder /> */}
       <RouterProvider router={router} />
       <ToastContainer />
     </>
