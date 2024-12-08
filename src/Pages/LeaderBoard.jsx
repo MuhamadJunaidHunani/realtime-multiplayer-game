@@ -5,15 +5,6 @@ import Loader from "../Components/Loader";
 import plyersBgImage from '../assets/images/playersBg.jpg'
 
 
-
-const players = [
-  { id: 1, name: "Player 1", stars: 5, score: 2980 },
-  { id: 2, name: "Player 2", stars: 4, score: 2721 },
-  { id: 3, name: "Player 3", stars: 4, score: 2579 },
-  { id: 4, name: "Player 4", stars: 3, score: 1874 },
-  { id: 5, name: "Player 5", stars: 2, score: 1756 },
-];
-
 const Leaderboard = () => {
   const { users, userLoading } = useSelector((state) => state.users);
   if (userLoading) {
@@ -36,7 +27,7 @@ const Leaderboard = () => {
     <div style={{ backgroundImage: `url(${plyersBgImage})` }} className={`bg-center bg-cover bg-no-repeat h-screen`}>
       <div className='h-screen w-full bg-[#00000050] backdrop-blur-[10px]'>
         <Header />
-        <div className="p-4 w-[100%] overflow-y-auto h-[calc(100vh-92px)] custom-scrollbar ">
+        <div className="p-4 w-[100%] overflow-y-auto h-[calc(100vh-92px)] custom-scrollbar">
           <h2 className="text-3xl font-semibold text-center text-white mb-3">
             Leader Boader
           </h2>

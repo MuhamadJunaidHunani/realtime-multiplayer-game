@@ -48,7 +48,7 @@ function Login() {
 
   return (
        <BgDesing>
-       <div className="w-full py-[20px] px-[30px] rounded-lg shadow-lg  "
+       <div className="w-full py-[20px] px-[30px] rounded-lg shadow-lg "
          style={{
            background: '#ffe2c266',
            boxShadow: ' 0 4px 30px rgba(0, 0, 0, 0.2)',
